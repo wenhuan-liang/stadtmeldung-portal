@@ -1,0 +1,31 @@
+{
+  "name": "stadtmeldung-portal",
+  "version": "1.0.0",
+  "description": "A software engineering project for a Stadtmeldung web application and information platform.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wenhuan-liang/stadtmeldung-portal.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/wenhuan-liang/stadtmeldung-portal/issues"
+  },
+  "homepage": "https://github.com/wenhuan-liang/stadtmeldung-portal#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "multer": "^2.4.0",
+    "uuid": "^14.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

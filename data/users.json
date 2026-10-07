@@ -1,0 +1,23 @@
+[
+  {
+    "id": "admin-user",
+    "username": "admin",
+    "password": "admin123",
+    "role": "admin",
+    "displayName": "Stadtverwaltung"
+  },
+  {
+    "id": "staff-user",
+    "username": "mitarbeiter",
+    "password": "mitarbeiter123",
+    "role": "staff",
+    "displayName": "Mitarbeiter"
+  },
+  {
+    "id": "citizen-user",
+    "username": "buerger",
+    "password": "buerger123",
+    "role": "citizen",
+    "displayName": "Bürger"
+  }
+]

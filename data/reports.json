@@ -1,0 +1,38 @@
+[
+  {
+    "id": "sample-1",
+    "title": "Defekte Straßenbeleuchtung",
+    "category": "Defekt",
+    "description": "Die Leuchte an der Ecke Hauptstraße / Lindenweg ist seit zwei Tagen außer Betrieb und verschlechtert die Sicherheit im Bereich.",
+    "latitude": 52.520388,
+    "longitude": 13.40599,
+    "status": "new",
+    "photo": "",
+    "createdAt": "2026-10-05T09:30:00.000Z",
+    "updatedAt": "2026-10-05T09:30:00.000Z"
+  },
+  {
+    "id": "sample-2",
+    "title": "Wild abgeladener Müll",
+    "category": "Verunreinigung",
+    "description": "Auf dem Grünstreifen neben dem Parkplatz wurde Kunststoffmüll und Verpackung entsorgt. Die Stelle ist sichtbar und stinkt.",
+    "latitude": 52.507641,
+    "longitude": 13.390512,
+    "status": "in_progress",
+    "photo": "",
+    "createdAt": "2026-10-06T14:20:00.000Z",
+    "updatedAt": "2026-10-06T16:00:00.000Z"
+  },
+  {
+    "id": "sample-3",
+    "title": "Falsch geparkt auf dem Radweg",
+    "category": "Parkverstoß",
+    "description": "Ein Fahrzeug blockiert den Radweg nahe der Schule und erschwert die Nutzung für Radfahrer.",
+    "latitude": 52.536452,
+    "longitude": 13.42119,
+    "status": "resolved",
+    "photo": "",
+    "createdAt": "2026-10-03T08:45:00.000Z",
+    "updatedAt": "2026-10-04T10:15:00.000Z"
+  }
+]
