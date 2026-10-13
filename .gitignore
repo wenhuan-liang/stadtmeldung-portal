@@ -3,3 +3,12 @@ uploads/*
 !uploads/.gitkeep
 .DS_Store
 .env
+
+# SQLite-Datenbanken
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Maven
+target/
