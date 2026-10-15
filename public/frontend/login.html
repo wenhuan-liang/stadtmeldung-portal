@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Report Tool – Login</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="login">
+  <header class="navbar">
+    <span class="navbar-brand">Report Tool</span>
+  </header>
+
+  <main class="auth-page">
+
+    <!-- View 1: Rolle wählen -->
+    <div class="auth-view" id="view-role">
+      <h1 class="auth-title">Login</h1>
+      <div class="auth-card">
+        <button class="auth-role-btn" id="btn-role-user">User</button>
+        <button class="auth-role-btn" id="btn-role-staff">Mitarbeiter</button>
+      </div>
+      <p class="auth-footer">Noch keinen Account? Hier <a href="#" id="link-to-register">registrieren</a></p>
+      <p class="auth-anon"><a href="#" id="link-anon">Anonym fortfahren</a></p>
+    </div>
+
+    <!-- View 2: User Login -->
+    <div class="auth-view" id="view-user-login" style="display: none;">
+      <h1 class="auth-title">Login – User</h1>
+      <div class="auth-card">
+        <div class="auth-role-badge">User</div>
+        <div class="auth-error" id="user-login-error" style="display: none;"></div>
+        <input class="auth-input" type="text" id="user-login-username" placeholder="Username" autocomplete="username">
+        <input class="auth-input" type="password" id="user-login-password" placeholder="Passwort" autocomplete="current-password">
+        <button class="auth-submit-btn" id="btn-user-login">Login</button>
+      </div>
+      <p class="auth-footer">Noch keinen Account? Hier <a href="#" id="link-register-from-user">registrieren</a></p>
+    </div>
+
+    <!-- View 3: Mitarbeiter Login -->
+    <div class="auth-view" id="view-staff-login" style="display: none;">
+      <h1 class="auth-title">Login – Mitarbeiter</h1>
+      <div class="auth-card">
+        <div class="auth-role-badge">Mitarbeiter</div>
+        <div class="auth-error" id="staff-login-error" style="display: none;"></div>
+        <input class="auth-input" type="text" id="staff-login-username" placeholder="Username" autocomplete="username">
+        <input class="auth-input" type="password" id="staff-login-password" placeholder="Passwort" autocomplete="current-password">
+        <button class="auth-submit-btn" id="btn-staff-login">Login</button>
+      </div>
+    </div>
+
+    <!-- View 4: Register – Rolle wählen -->
+    <div class="auth-view" id="view-register" style="display: none;">
+      <h1 class="auth-title">Register</h1>
+      <div class="auth-card">
+        <button class="auth-role-btn" id="btn-role-register-user">User</button>
+      </div>
+      <p class="auth-footer">Schon einen Account? Hier <a href="#" id="link-to-login-from-register">anmelden</a></p>
+    </div>
+
+    <!-- View 5: Register – User -->
+    <div class="auth-view" id="view-user-register" style="display: none;">
+      <h1 class="auth-title">Register – User</h1>
+      <div class="auth-card">
+        <div class="auth-role-badge">User</div>
+        <div class="auth-error" id="user-register-error" style="display: none;"></div>
+        <input class="auth-input" type="text" id="user-register-username" placeholder="Username" autocomplete="username">
+        <input class="auth-input" type="password" id="user-register-password" placeholder="Passwort" autocomplete="new-password">
+        <button class="auth-submit-btn" id="btn-user-register">Register</button>
+      </div>
+      <p class="auth-footer">Schon einen Account? Hier <a href="#" id="link-to-login-from-reg-user">anmelden</a></p>
+    </div>
+
+  </main>
+
+  <script src="login.js"></script>
+</body>
+</html>

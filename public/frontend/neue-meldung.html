@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Report Tool – Neue Meldung</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="neue-meldung">
+  <header class="navbar">
+    <span class="navbar-brand">Report Tool</span>
+    <nav class="navbar-tabs">
+      <a href="index.html" class="tab">Hauptseite</a>
+      <a href="meine-meldungen.html" class="tab">Meine Meldungen</a>
+    </nav>
+    <div class="navbar-auth" id="navbar-auth"></div>
+  </header>
+
+  <script>
+    (function () {
+      const s = JSON.parse(sessionStorage.getItem('stadtmeldung_user') || 'null');
+      if (!s) window.location.href = 'login.html';
+    })();
+  </script>
+
+  <main class="layout">
+    <!-- Karte zur Standortauswahl -->
+    <div class="col-left">
+      <section class="card">
+        <h2 class="card-title">Standort auswählen</h2>
+        <p class="location-hint" id="location-hint">Klicke auf die Karte, um einen Standort zu markieren.</p>
+        <button type="button" class="btn-gps" id="btn-gps">GPS-Standort verwenden</button>
+        <div class="map-card" style="margin-top: 12px;">
+          <div id="map"></div>
+        </div>
+        <div class="coord-display" id="coord-display" style="display: none;">
+          <div>
+            <span class="meta-label">Breitengrad</span>
+            <span class="meta-value" id="lat-display">–</span>
+          </div>
+          <div>
+            <span class="meta-label">Längengrad</span>
+            <span class="meta-value" id="lng-display">–</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Formular -->
+    <div class="col-right">
+      <section class="card">
+        <h2 class="card-title">Neue Meldung</h2>
+        <form id="neue-meldung-form" novalidate>
+          <div class="form-error" id="form-error" style="display: none;"></div>
+
+          <div class="form-group">
+            <label class="form-label" for="input-title">Titel</label>
+            <input class="form-input" type="text" id="input-title"
+              placeholder="z. B. Defekte Straßenlaterne" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="input-category">Kategorie</label>
+            <select class="form-input form-select" id="input-category" required>
+              <option value="">Bitte wählen …</option>
+              <option value="Defekt">Defekt</option>
+              <option value="Verunreinigung">Verunreinigung</option>
+              <option value="Parkvergehen">Parkvergehen</option>
+              <option value="Sonstiges">Sonstiges</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="input-description">Beschreibung</label>
+            <textarea class="form-input form-textarea" id="input-description"
+              placeholder="Detaillierte Beschreibung des Problems …" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="input-photo">
+              Foto <span class="form-optional">(optional)</span>
+            </label>
+            <input class="form-input form-file" type="file" id="input-photo" accept="image/*">
+            <div id="photo-preview-wrap" style="display: none;">
+              <img id="photo-preview" class="photo-preview" alt="Vorschau">
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit">Meldung senden</button>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="auth.js?v=3"></script>
+  <script src="neue-meldung.js?v=3"></script>
+</body>
+</html>
