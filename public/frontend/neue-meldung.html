@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Report Tool – Neue Meldung</title>
+  <title>FixMyCity – Neue Meldung</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=2">
 </head>
 <body data-page="neue-meldung">
   <header class="navbar">
-    <span class="navbar-brand">Report Tool</span>
+    <span class="navbar-brand">FixMyCity</span>
     <nav class="navbar-tabs">
       <a href="index.html" class="tab">Hauptseite</a>
       <a href="meine-meldungen.html" class="tab">Meine Meldungen</a>
@@ -52,12 +52,12 @@
       <section class="card">
         <h2 class="card-title">Neue Meldung</h2>
         <form id="neue-meldung-form" novalidate>
-          <div class="form-error" id="form-error" style="display: none;"></div>
 
           <div class="form-group">
             <label class="form-label" for="input-title">Titel</label>
             <input class="form-input" type="text" id="input-title"
               placeholder="z. B. Defekte Straßenlaterne" required>
+            <p class="field-error" id="error-title"></p>
           </div>
 
           <div class="form-group">
@@ -69,12 +69,14 @@
               <option value="Parkvergehen">Parkvergehen</option>
               <option value="Sonstiges">Sonstiges</option>
             </select>
+            <p class="field-error" id="error-category"></p>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="input-description">Beschreibung</label>
+            <label class="form-label" for="input-description">Beschreibung <span class="form-optional">(optional)</span></label>
             <textarea class="form-input form-textarea" id="input-description"
-              placeholder="Detaillierte Beschreibung des Problems …" required></textarea>
+              placeholder="Detaillierte Beschreibung des Problems …"></textarea>
+            <p class="field-error" id="error-description"></p>
           </div>
 
           <div class="form-group">
@@ -95,6 +97,6 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="auth.js?v=3"></script>
-  <script src="neue-meldung.js?v=3"></script>
+  <script src="neue-meldung.js?v=4"></script>
 </body>
 </html>

@@ -54,6 +54,7 @@ const STATUS_COLORS = {
 const ALL_CATEGORIES = ['Defekt', 'Verunreinigung', 'Parkvergehen', 'Sonstiges'];
 
 let activeStatusFilter = null;
+let editingReportId = null;
 
 let map;
 let markerMap = {};
@@ -176,11 +177,14 @@ function renderList() {
     return;
   }
 
+  const isMeinePage = document.body.dataset.page === 'meine-meldungen';
+
   list.innerHTML = filtered.map(r => `
     <li class="report-card" data-id="${r.id}">
       <div class="report-card-header">
         <span class="category-badge cat-${toCssClass(r.category)}">${r.category}</span>
         <span class="status-badge" style="background: ${STATUS_COLORS[r.status]}">${STATUS_LABELS[r.status]}</span>
+        ${isMeinePage ? `<button class="btn-edit-report" data-id="${r.id}">Bearbeiten</button>` : ''}
       </div>
       <h3 class="report-card-title">${r.title}</h3>
       <p class="report-card-desc">${r.description}</p>
@@ -197,6 +201,15 @@ function renderList() {
       </div>
     </li>
   `).join('');
+
+  if (isMeinePage) {
+    list.querySelectorAll('.btn-edit-report').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        showEditView(btn.dataset.id);
+      });
+    });
+  }
 }
 
 function formatDate(iso) {
@@ -227,6 +240,7 @@ function setupListClick() {
   if (!list) return;
 
   list.addEventListener('click', e => {
+    if (e.target.closest('.btn-edit-report')) return;
     const item = e.target.closest('.report-card');
     if (!item) return;
 
@@ -237,6 +251,51 @@ function setupListClick() {
       marker.openPopup();
     }
   });
+}
+
+function showEditView(reportId) {
+  const report = getReports().find(r => r.id === reportId);
+  if (!report) return;
+  editingReportId = reportId;
+  document.getElementById('edit-title').value       = report.title;
+  document.getElementById('edit-category').value    = report.category;
+  document.getElementById('edit-description').value = report.description || '';
+  document.getElementById('edit-error-title').textContent = '';
+  document.getElementById('edit-title').classList.remove('input-error');
+  document.getElementById('view-list').style.display = 'none';
+  document.getElementById('view-edit').style.display = 'block';
+}
+
+function showListView() {
+  editingReportId = null;
+  document.getElementById('view-edit').style.display = 'none';
+  document.getElementById('view-list').style.display = 'block';
+}
+
+function saveEdit(e) {
+  e.preventDefault();
+  const title       = document.getElementById('edit-title').value.trim();
+  const category    = document.getElementById('edit-category').value;
+  const description = document.getElementById('edit-description').value.trim();
+
+  if (!title) {
+    document.getElementById('edit-title').classList.add('input-error');
+    document.getElementById('edit-error-title').textContent = 'Bitte gib einen Titel ein.';
+    return;
+  }
+
+  const reports = getReports();
+  const r = reports.find(r => r.id === editingReportId);
+  if (!r) return;
+  r.title       = title;
+  r.category    = category;
+  r.description = description;
+  localStorage.setItem('stadtmeldung_reports', JSON.stringify(reports));
+
+  showListView();
+  renderStats();
+  renderMarkers();
+  renderList();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -250,9 +309,11 @@ document.addEventListener('DOMContentLoaded', () => {
   setupListClick();
 
   const fabBtn = document.getElementById('btn-neue-meldung');
-  if (fabBtn) {
-    fabBtn.addEventListener('click', () => {
-      window.location.href = 'neue-meldung.html';
-    });
-  }
+  if (fabBtn) fabBtn.addEventListener('click', () => { window.location.href = 'neue-meldung.html'; });
+
+  const editForm = document.getElementById('edit-form');
+  if (editForm) editForm.addEventListener('submit', saveEdit);
+
+  const btnBack = document.getElementById('btn-edit-back');
+  if (btnBack) btnBack.addEventListener('click', showListView);
 });

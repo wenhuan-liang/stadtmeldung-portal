@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Report Tool – Meine Meldungen</title>
+  <title>FixMyCity – Meine Meldungen</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=2">
 </head>
 <body data-page="meine-meldungen">
   <header class="navbar">
-    <span class="navbar-brand">Report Tool</span>
+    <span class="navbar-brand">FixMyCity</span>
     <nav class="navbar-tabs">
       <a href="index.html" class="tab">Hauptseite</a>
       <a href="meine-meldungen.html" class="tab tab--active">Meine Meldungen</a>
@@ -59,13 +59,48 @@
     </div>
 
     <div class="col-right">
-      <section class="card reports-card">
-        <h2 class="card-title">Meine Meldungen</h2>
-        <div class="stats-row" id="stats-row"></div>
-        <ul class="reports-list" id="reports-list">
-          <!-- wird von app.js befüllt -->
-        </ul>
-      </section>
+      <!-- Listenansicht -->
+      <div id="view-list">
+        <section class="card reports-card">
+          <h2 class="card-title">Meine Meldungen</h2>
+          <div class="stats-row" id="stats-row"></div>
+          <ul class="reports-list" id="reports-list"></ul>
+        </section>
+      </div>
+
+      <!-- Bearbeitungsansicht -->
+      <div id="view-edit" style="display:none">
+        <section class="card">
+          <div class="admin-detail-header">
+            <button class="admin-back-btn" id="btn-edit-back">← Zurück</button>
+            <h2 class="card-title" style="margin:0">Meldung bearbeiten</h2>
+          </div>
+          <form id="edit-form" novalidate>
+            <div class="form-group">
+              <label class="form-label" for="edit-title">Titel</label>
+              <input class="form-input" type="text" id="edit-title">
+              <p class="field-error" id="edit-error-title"></p>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-category">Kategorie</label>
+              <select class="form-input form-select" id="edit-category">
+                <option value="Defekt">Defekt</option>
+                <option value="Verunreinigung">Verunreinigung</option>
+                <option value="Parkvergehen">Parkvergehen</option>
+                <option value="Sonstiges">Sonstiges</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-description">
+                Beschreibung <span class="form-optional">(optional)</span>
+              </label>
+              <textarea class="form-input form-textarea" id="edit-description"
+                placeholder="Beschreibung …"></textarea>
+            </div>
+            <button type="submit" class="btn-submit">Änderungen speichern</button>
+          </form>
+        </section>
+      </div>
     </div>
   </main>
 
@@ -76,6 +111,6 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="auth.js?v=3"></script>
-  <script src="app.js?v=5"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>

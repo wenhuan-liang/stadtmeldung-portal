@@ -42,30 +42,59 @@ function useGPS() {
   );
 }
 
+function setFieldError(inputId, errorId, msg) {
+  const input = document.getElementById(inputId);
+  const err = document.getElementById(errorId);
+  if (msg) {
+    if (input) input.classList.add('input-error');
+    if (err) err.textContent = msg;
+  } else {
+    if (input) input.classList.remove('input-error');
+    if (err) err.textContent = '';
+  }
+}
+
+function clearFieldErrors() {
+  ['input-title', 'input-category', 'input-description'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('input-error');
+  });
+  ['error-title', 'error-category', 'error-description'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = '';
+  });
+  const hint = document.getElementById('location-hint');
+  if (hint) hint.classList.remove('location-hint--error');
+}
+
 function showError(msg) {
   const el = document.getElementById('form-error');
-  el.textContent = msg;
-  el.style.display = 'block';
-  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
 }
 
 function hideError() {
-  document.getElementById('form-error').style.display = 'none';
+  const el = document.getElementById('form-error');
+  if (el) el.style.display = 'none';
 }
 
 function handleSubmit(e) {
   e.preventDefault();
-  hideError();
+  clearFieldErrors();
 
-  const title = document.getElementById('input-title').value.trim();
-  const category = document.getElementById('input-category').value;
+  const title       = document.getElementById('input-title').value.trim();
+  const category    = document.getElementById('input-category').value;
   const description = document.getElementById('input-description').value.trim();
-  const photoInput = document.getElementById('input-photo');
+  const photoInput  = document.getElementById('input-photo');
 
-  if (!title)       { showError('Bitte gib einen Titel ein.'); return; }
-  if (!category)    { showError('Bitte wähle eine Kategorie.'); return; }
-  if (!description) { showError('Bitte gib eine Beschreibung ein.'); return; }
-  if (selectedLat === null) { showError('Bitte wähle einen Standort auf der Karte aus.'); return; }
+  let valid = true;
+  if (!title)       { setFieldError('input-title',    'error-title',    'Bitte gib einen Titel ein.');  valid = false; }
+  if (!category)    { setFieldError('input-category', 'error-category', 'Bitte wähle eine Kategorie.'); valid = false; }
+  if (selectedLat === null) {
+    const hint = document.getElementById('location-hint');
+    if (hint) { hint.textContent = 'Bitte wähle einen Standort auf der Karte aus.'; hint.classList.add('location-hint--error'); }
+    valid = false;
+  }
+  if (!valid) return;
 
   const hasPhoto = photoInput.files.length > 0;
 

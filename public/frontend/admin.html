@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FixMyCity – Dashboard</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="styles.css?v=2">
+</head>
+<body data-page="admin">
+  <header class="navbar">
+    <span class="navbar-brand">FixMyCity</span>
+    <nav class="navbar-tabs">
+      <a href="admin.html" class="tab tab--active">Dashboard</a>
+    </nav>
+    <div class="navbar-auth" id="navbar-auth"></div>
+  </header>
+
+  <script>
+    (function () {
+      const s = JSON.parse(sessionStorage.getItem('stadtmeldung_user') || 'null');
+      if (!s || (s.role !== 'staff' && s.role !== 'admin')) window.location.href = 'login.html';
+    })();
+  </script>
+
+  <main class="layout">
+    <!-- Linke Spalte: Filter + Karte -->
+    <div class="col-left">
+      <section class="card filter-card">
+        <h2 class="card-title">Filter</h2>
+
+        <p class="filter-heading">Kategorie</p>
+        <div class="filter-group" id="category-filter-group">
+          <label class="filter-label">
+            <input type="checkbox" value="Defekt" checked>
+            <span class="filter-dot" style="background:#D4622A"></span> Defekt
+          </label>
+          <label class="filter-label">
+            <input type="checkbox" value="Verunreinigung" checked>
+            <span class="filter-dot" style="background:#4A9A5E"></span> Verunreinigung
+          </label>
+          <label class="filter-label">
+            <input type="checkbox" value="Parkvergehen" checked>
+            <span class="filter-dot" style="background:#3A78BE"></span> Parkvergehen
+          </label>
+          <label class="filter-label">
+            <input type="checkbox" value="Sonstiges" checked>
+            <span class="filter-dot" style="background:#888888"></span> Sonstiges
+          </label>
+        </div>
+
+        <p class="filter-heading">Datum</p>
+        <div class="filter-date">
+          <label class="filter-date-label" for="date-von">Von</label>
+          <input class="form-input admin-date-input" type="date" id="date-von">
+          <label class="filter-date-label" for="date-bis">Bis</label>
+          <input class="form-input admin-date-input" type="date" id="date-bis">
+        </div>
+      </section>
+
+      <div class="map-card">
+        <div id="map"></div>
+      </div>
+    </div>
+
+    <!-- Rechte Spalte: Liste oder Detailansicht -->
+    <div class="col-right">
+
+      <!-- Listenansicht -->
+      <div id="view-list">
+        <section class="card reports-card">
+          <h2 class="card-title">Alle Meldungen</h2>
+          <div class="stats-row" id="stats-row"></div>
+          <ul class="reports-list" id="reports-list"></ul>
+        </section>
+      </div>
+
+      <!-- Detailansicht -->
+      <div id="view-detail" style="display:none">
+        <section class="card">
+          <div class="admin-detail-header">
+            <button class="admin-back-btn" id="btn-back">← Zurück</button>
+            <h2 class="card-title" id="detail-title" style="margin:0"></h2>
+          </div>
+
+          <div id="detail-meta"></div>
+          <div id="detail-map"></div>
+          <div id="detail-photo"></div>
+
+          <div class="admin-actions">
+            <div class="admin-action-group">
+              <label class="form-label">Status ändern</label>
+              <select class="form-input" id="status-select">
+                <option value="new">Neu</option>
+                <option value="in_progress">In Bearbeitung</option>
+                <option value="resolved">Erledigt</option>
+              </select>
+              <button class="btn-admin-action" id="btn-status-save">Speichern</button>
+            </div>
+            <div class="admin-action-group">
+              <label class="form-label">Kommentar / Notiz</label>
+              <textarea class="form-input form-textarea" id="comment-input"
+                placeholder="Notiz hinzufügen …" rows="3"></textarea>
+              <button class="btn-admin-action" id="btn-comment-add">Hinzufügen</button>
+            </div>
+          </div>
+
+          <div id="comments-list"></div>
+
+          <div class="admin-danger-zone">
+            <button class="btn-admin-delete" id="btn-delete">Meldung löschen</button>
+          </div>
+        </section>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="auth.js?v=3"></script>
+  <script src="admin.js?v=3"></script>
+</body>
+</html>
