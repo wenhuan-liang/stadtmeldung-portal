@@ -60,6 +60,36 @@ let map;
 let markerMap = {};
 let activeCategories = new Set(ALL_CATEGORIES);
 
+function getPriority(votes) {
+  const v = votes || 0;
+  if (v === 0) return { label: 'Keine',   cls: 'priority-none' };
+  if (v <= 2)  return { label: 'Niedrig', cls: 'priority-low' };
+  if (v <= 5)  return { label: 'Mittel',  cls: 'priority-medium' };
+  return           { label: 'Hoch',    cls: 'priority-high' };
+}
+
+function handleVote(reportId) {
+  const session = JSON.parse(sessionStorage.getItem('stadtmeldung_user') || 'null');
+  if (!session || session.role === 'anonymous') return;
+  const reports = getReports();
+  const r = reports.find(r => r.id === reportId);
+  if (!r) return;
+  if (!r.votedBy) r.votedBy = [];
+  if (!r.votes) r.votes = 0;
+  const idx = r.votedBy.indexOf(session.username);
+  if (idx === -1) {
+    r.votedBy.push(session.username);
+    r.votes++;
+  } else {
+    r.votedBy.splice(idx, 1);
+    r.votes = Math.max(0, r.votes - 1);
+  }
+  localStorage.setItem('stadtmeldung_reports', JSON.stringify(reports));
+  renderStats();
+  renderMarkers();
+  renderList();
+}
+
 // Lädt Meldungen aus localStorage, setzt Demo-Daten beim ersten Start
 function getReports() {
   try {
@@ -162,13 +192,16 @@ function renderList() {
   const list = document.getElementById('reports-list');
   if (!list) return;
 
+  const page = document.body.dataset.page;
+  const isMeinePage   = page === 'meine-meldungen';
+  const isHauptseite  = page === 'hauptseite';
+
   let filtered = getPageReports().filter(r => activeCategories.has(r.category));
   if (activeStatusFilter) {
     filtered = filtered.filter(r => r.status === activeStatusFilter);
   }
 
   if (filtered.length === 0) {
-    const isMeinePage = document.body.dataset.page === 'meine-meldungen';
     list.innerHTML = `<li class="reports-empty">${
       isMeinePage
         ? 'Du hast noch keine Meldungen eingereicht.'
@@ -177,14 +210,22 @@ function renderList() {
     return;
   }
 
-  const isMeinePage = document.body.dataset.page === 'meine-meldungen';
+  const session = isHauptseite
+    ? JSON.parse(sessionStorage.getItem('stadtmeldung_user') || 'null')
+    : null;
+  const canVote = session && session.role !== 'anonymous';
 
-  list.innerHTML = filtered.map(r => `
+  list.innerHTML = filtered.map(r => {
+    const voted = canVote && (r.votedBy || []).includes(session.username);
+    return `
     <li class="report-card" data-id="${r.id}">
       <div class="report-card-header">
         <span class="category-badge cat-${toCssClass(r.category)}">${r.category}</span>
-        <span class="status-badge" style="background: ${STATUS_COLORS[r.status]}">${STATUS_LABELS[r.status]}</span>
-        ${isMeinePage ? `<button class="btn-edit-report" data-id="${r.id}">Bearbeiten</button>` : ''}
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="status-badge" style="background: ${STATUS_COLORS[r.status]}">${STATUS_LABELS[r.status]}</span>
+          ${isMeinePage ? `<button class="btn-edit-report" data-id="${r.id}">Bearbeiten</button>` : ''}
+          ${isHauptseite && canVote ? `<button class="btn-vote${voted ? ' btn-vote--voted' : ''}" data-id="${r.id}">▲ ${r.votes || 0}</button>` : ''}
+        </div>
       </div>
       <h3 class="report-card-title">${r.title}</h3>
       <p class="report-card-desc">${r.description}</p>
@@ -200,13 +241,22 @@ function renderList() {
         </div>
       </div>
     </li>
-  `).join('');
+  `}).join('');
 
   if (isMeinePage) {
     list.querySelectorAll('.btn-edit-report').forEach(btn => {
       btn.addEventListener('click', e => {
         e.stopPropagation();
         showEditView(btn.dataset.id);
+      });
+    });
+  }
+
+  if (isHauptseite && canVote) {
+    list.querySelectorAll('.btn-vote').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        handleVote(btn.dataset.id);
       });
     });
   }

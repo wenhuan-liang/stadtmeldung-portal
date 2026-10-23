@@ -49,6 +49,14 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric' });
 }
 
+function getPriority(votes) {
+  const v = votes || 0;
+  if (v === 0) return { label: 'Keine',   cls: 'priority-none' };
+  if (v <= 2)  return { label: 'Niedrig', cls: 'priority-low' };
+  if (v <= 5)  return { label: 'Mittel',  cls: 'priority-medium' };
+  return           { label: 'Hoch',    cls: 'priority-high' };
+}
+
 // ---- Karte ----
 
 function initMap() {
@@ -126,7 +134,10 @@ function renderList() {
     <li class="report-card" data-id="${r.id}">
       <div class="report-card-header">
         <span class="category-badge cat-${toCssClass(r.category)}">${r.category}</span>
-        <span class="status-badge" style="background:${STATUS_COLORS[r.status]}">${STATUS_LABELS[r.status]}</span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="status-badge" style="background:${STATUS_COLORS[r.status]}">${STATUS_LABELS[r.status]}</span>
+          <span class="priority-badge ${getPriority(r.votes).cls}">▲ ${r.votes || 0}</span>
+        </div>
       </div>
       <h3 class="report-card-title">${r.title}</h3>
       ${r.description ? `<p class="report-card-desc">${r.description}</p>` : ''}
@@ -172,6 +183,10 @@ function showDetail(reportId) {
       <div>
         <span class="meta-label">Koordinaten</span>
         <span class="meta-value">${Number(report.latitude).toFixed(5)}, ${Number(report.longitude).toFixed(5)}</span>
+      </div>
+      <div>
+        <span class="meta-label">Priorität</span>
+        <span class="priority-badge ${getPriority(report.votes).cls}">${getPriority(report.votes).label} (${report.votes || 0} Votes)</span>
       </div>
     </div>
     ${report.description ? `<p class="detail-description">${report.description}</p>` : ''}
