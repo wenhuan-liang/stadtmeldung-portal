@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">FixMyCity</title>
+  <rect width="64" height="64" rx="16" fill="#125d7a"/>
+  <path d="M17 47V27l10-7 10 7v20M22 47V34h10v13M37 47h10V17h-9v9M42 22h1" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5"/>
+  <path d="m38 37 4 4 8-9" fill="none" stroke="#f4b942" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+</svg>

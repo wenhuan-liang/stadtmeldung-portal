@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FixMyCity – Stadtmeldungen</title>
+  <link rel="icon" type="image/svg+xml" href="/fixmycity-logo.svg">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="hauptseite">
+  <header class="navbar">
+    <a class="navbar-brand" href="index.html">
+      <img src="/fixmycity-logo.svg" alt="" width="36" height="36">
+      <span>FixMyCity</span>
+    </a>
+    <nav class="navbar-tabs">
+      <a href="index.html" class="tab tab--active">Hauptseite</a>
+      <a href="meine-meldungen.html" class="tab">Meine Meldungen</a>
+    </nav>
+    <div class="navbar-auth" id="navbar-auth"></div>
+  </header>
+
+  <main class="layout">
+    <div class="col-left">
+      <section class="card filter-card">
+        <h2 class="card-title">Filter</h2>
+        <div class="filter-group">
+          <label class="filter-label">
+            <input type="checkbox" value="Defekt" checked>
+            <span class="filter-dot" style="background: #D4622A"></span>
+            Defekt
+          </label>
+          <label class="filter-label">
+            <input type="checkbox" value="Verunreinigung" checked>
+            <span class="filter-dot" style="background: #4A9A5E"></span>
+            Verunreinigung
+          </label>
+          <label class="filter-label">
+            <input type="checkbox" value="Parkvergehen" checked>
+            <span class="filter-dot" style="background: #3A78BE"></span>
+            Parkvergehen
+          </label>
+          <label class="filter-label">
+            <input type="checkbox" value="Sonstiges" checked>
+            <span class="filter-dot" style="background: #888888"></span>
+            Sonstiges
+          </label>
+        </div>
+      </section>
+
+      <div class="map-card">
+        <div id="map"></div>
+      </div>
+    </div>
+
+    <div class="col-right">
+      <section class="card reports-card">
+        <h2 class="card-title">Alle Meldungen</h2>
+        <div class="stats-row" id="stats-row"></div>
+        <label class="report-sort-label" for="report-sort">
+          Reihenfolge
+          <select class="form-input form-select" id="report-sort">
+            <option value="newest">Neueste zuerst</option>
+            <option value="votes">Meiste Stimmen zuerst</option>
+            <option value="votes-ascending">Wenigste Stimmen zuerst</option>
+          </select>
+        </label>
+        <ul class="reports-list" id="reports-list">
+          <!-- wird von app.js befüllt -->
+        </ul>
+      </section>
+    </div>
+  </main>
+
+  <button class="fab" id="btn-neue-meldung">
+    <span class="fab-icon">+</span>
+    Neue Meldung
+  </button>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="auth.js?v=9"></script>
+  <script src="app.js?v=13"></script>
+</body>
+</html>

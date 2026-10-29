@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FixMyCity – Mitarbeiter verwalten</title>
+  <link rel="icon" type="image/svg+xml" href="/fixmycity-logo.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="mitarbeiter">
+  <header class="navbar">
+    <a class="navbar-brand" href="index.html">
+      <img src="/fixmycity-logo.svg" alt="" width="36" height="36">
+      <span>FixMyCity</span>
+    </a>
+    <nav class="navbar-tabs">
+      <a href="mitarbeiter.html" class="tab tab--active">Mitarbeiterkonten verwalten</a>
+    </nav>
+    <div class="navbar-auth" id="navbar-auth"></div>
+  </header>
+
+  <main class="admin-layout">
+    <section class="card">
+      <h1 class="card-title">Mitarbeiterkonto anlegen</h1>
+      <p class="admin-description">
+        Als Administrator können Sie Mitarbeiterkonten erstellen. Bitte teilen Sie das Startpasswort direkt und sicher mit der betreffenden Person.
+      </p>
+      <form id="employee-form" class="employee-form">
+        <div class="form-error" id="employee-error" role="alert" hidden></div>
+        <div class="form-success" id="employee-success" role="status" hidden></div>
+        <div class="form-group">
+          <label class="form-label" for="employee-username">Benutzername</label>
+          <input class="form-input" id="employee-username" name="username"
+            autocomplete="off" minlength="3" maxlength="32"
+            pattern="[-A-Za-z0-9._]+" required>
+          <small>3–32 Buchstaben, Zahlen, Punkte, Unterstriche oder Bindestriche.</small>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="employee-password">Startpasswort</label>
+          <input class="form-input" type="password" id="employee-password"
+            name="password" autocomplete="new-password" minlength="12"
+            maxlength="72" required>
+          <small>Mindestens 12 Zeichen. Nicht per E-Mail oder Chat versenden.</small>
+        </div>
+        <button class="btn-submit" type="submit">Mitarbeiterkonto erstellen</button>
+      </form>
+    </section>
+
+    <section class="card employee-list-card">
+      <h2 class="card-title">Vorhandene Mitarbeiter</h2>
+      <p class="admin-description">
+        Folgende Mitarbeitende können sich mit diesen Konten über „Mitarbeiter der Stadt“ anmelden und Meldungen bearbeiten.<br>
+        Bei Bedarf können Sie diese Konten hier auch löschen.
+      </p>
+      <ul class="employee-list" id="employee-list" aria-live="polite"></ul>
+    </section>
+  </main>
+
+  <script src="auth.js?v=9"></script>
+  <script src="mitarbeiter.js?v=3"></script>
+</body>
+</html>

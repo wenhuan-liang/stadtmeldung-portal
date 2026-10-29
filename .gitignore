@@ -3,3 +3,7 @@ uploads/*
 !uploads/.gitkeep
 .DS_Store
 .env
+target/
+portal.db
+portal.db-shm
+portal.db-wal
