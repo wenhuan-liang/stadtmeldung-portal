@@ -567,29 +567,58 @@ main {
   background: rgba(255, 255, 255, 0.15);
 }
 
+/* ---- Info-Banner (Login-Seite) ---- */
+
+.info-banner {
+  background: #cc85b8;
+  color: #fff;
+  padding: 20px 32px;
+}
+
+.info-banner-inner {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.info-banner-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+
+.info-banner p {
+  font-size: 0.82rem;
+  line-height: 1.7;
+  opacity: 0.92;
+}
+
+.info-banner p + p {
+  margin-top: 7px;
+}
+
 /* ---- Login / Auth-Seite ---- */
 
 .auth-page {
-  min-height: calc(100vh - 56px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 32px 24px;
-  gap: 20px;
+  padding: 28px 24px 16px;
+  gap: 16px;
 }
 
 .auth-view {
   width: 100%;
-  max-width: 480px;
+  max-width: 320px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
 }
 
 .auth-title {
-  font-size: 1.9rem;
+  font-size: 1.2rem;
   font-weight: 700;
   text-align: center;
 }
@@ -597,12 +626,12 @@ main {
 .auth-card {
   background: rgba(184, 93, 157, 0.18);
   border-radius: 12px;
-  padding: 40px 48px;
+  padding: 20px 28px;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
 }
 
 .auth-role-btn {
@@ -686,6 +715,30 @@ main {
 .auth-submit-btn:active {
   transform: translateY(2px);
   box-shadow: 0 1px 0 rgba(80, 20, 60, 0.3);
+}
+
+.auth-back-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  font-family: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+  align-self: flex-start;
+  transition: color 0.15s;
+}
+
+.auth-back-btn:hover {
+  color: #fff;
+}
+
+.auth-card-top {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
 }
 
 .auth-error {

@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // User Login
+  document.getElementById('btn-back-from-user').addEventListener('click', () => showView('view-role'));
   document.getElementById('link-register-from-user').addEventListener('click', e => { e.preventDefault(); showView('view-register'); });
   document.getElementById('btn-user-login').addEventListener('click', () => {
     hideError('user-login-error');
@@ -99,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
   onEnter(['user-login-username', 'user-login-password'], 'btn-user-login');
 
   // Mitarbeiter Login
+  document.getElementById('btn-back-from-staff').addEventListener('click', () => showView('view-role'));
   document.getElementById('btn-staff-login').addEventListener('click', () => {
     hideError('staff-login-error');
     const username = document.getElementById('staff-login-username').value.trim();
