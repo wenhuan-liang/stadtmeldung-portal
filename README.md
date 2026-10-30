@@ -42,6 +42,35 @@ Falls PowerShell `mvn` nicht findet, obwohl Maven installiert ist, wurde das Ter
 
 In einer neu geöffneten PowerShell können Sie mit `mvn -version` prüfen, ob Maven im PATH gefunden wird.
 
+## Start unter Mac
+
+Voraussetzungen sind ein installiertes JDK 17 oder neuer und Maven 3.9 oder neuer. Öffnen Sie Terminal, wechseln Sie in den Projektordner und prüfen Sie bei Bedarf die Installationen mit `java -version` und `mvn -version`:
+
+```bash
+cd "/Pfad/zum/stadtmeldung-portal"
+```
+
+**Einmalige Ersteinrichtung:** Wenn die SQLite-Datenbank noch keinen Administrator enthält, legen Sie für den ersten Start die Zugangsdaten in der aktuellen Terminal-Sitzung fest. Ersetzen Sie das Beispielpasswort durch ein eigenes, mindestens 12 Zeichen langes Passwort:
+
+```bash
+export PORTAL_ADMIN_USERNAME="admin"
+export PORTAL_ADMIN_PASSWORD="hier-ein-eigenes-starkes-Passwort-eintragen"
+mvn test
+mvn spring-boot:run
+```
+
+Danach `http://localhost:3000` im Browser öffnen und unter „Mitarbeiter der Stadt“ anmelden. Der Server lauscht standardmäßig nur auf dem eigenen Computer.
+
+**Normale Starts danach:** Sind die Admin-Variablen noch gesetzt, entfernen Sie sie vor dem Start. Ist bereits ein Administrator in der Datenbank vorhanden, werden sie nicht benötigt:
+
+```bash
+unset PORTAL_ADMIN_USERNAME
+unset PORTAL_ADMIN_PASSWORD
+mvn spring-boot:run
+```
+
+Falls `mvn` oder `java` nicht gefunden wird, installieren Sie ein JDK 17+ und Maven und öffnen Sie danach ein neues Terminal. Mit `java -version` und `mvn -version` können Sie die Installation prüfen.
+
 ## Funktionen
 
 - Meldungen auf der Karte erfassen, mit Titel, Beschreibung, Position und optionalem Foto.
@@ -102,6 +131,9 @@ Die Karte verwendet den öffentlichen OpenStreetMap-Tile-Server gemäß dessen [
 - `GET /api/reports/:id/comments` – öffentliche Fortschrittsinformationen ansehen
 - `POST /api/reports/:id/comments` – Fortschrittsinformation als Bürger ergänzen (`text` bis 1.000 Zeichen, optional `photoData`; Text oder Foto erforderlich)
 - `POST /api/reports/:id/comments/internal` – internen Kommentar als Mitarbeiter/Admin ergänzen (`text`, nur für das Stadt-Team sichtbar)
+- `GET /api/reports/:id/attachments` – Anhänge einer Meldung ansehen
+- `POST /api/reports/:id/attachments` – Foto als Bürger an die eigene Meldung anhängen (`photoData`)
+- `DELETE /api/attachments/:id` – eigenen Anhang als Bürger löschen
 - `PATCH /api/reports/:id` – Status ändern (Mitarbeiter/Admin)
 - `DELETE /api/reports/:id` – erledigte Meldung löschen (Mitarbeiter/Admin)
 

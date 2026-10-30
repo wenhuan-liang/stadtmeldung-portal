@@ -54,8 +54,14 @@ public class SecurityConfig {
                             .permitAll()
                     .requestMatchers(HttpMethod.GET,
                             "/api/reports/*/comments").permitAll()
+                    .requestMatchers(HttpMethod.GET,
+                            "/api/reports/*/attachments").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/reports")
                             .permitAll()
+                    .requestMatchers(HttpMethod.POST,
+                            "/api/reports/*/attachments").hasRole("CITIZEN")
+                    .requestMatchers(HttpMethod.DELETE,
+                            "/api/attachments/*").hasRole("CITIZEN")
                     .requestMatchers(HttpMethod.POST, "/api/reports/*/votes")
                             .hasRole("CITIZEN")
                     .requestMatchers(HttpMethod.DELETE, "/api/reports/*/votes")
