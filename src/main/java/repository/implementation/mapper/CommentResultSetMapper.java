@@ -22,6 +22,7 @@ public class CommentResultSetMapper {
 
         String text = rs.getString("text");
         String photoPath = rs.getString("photo_path");
+        boolean internal = rs.getInt("is_internal") != 0;
 
         LocalDateTime createdAt =
                 parseDateTime(rs.getString("created_at"));
@@ -32,6 +33,7 @@ public class CommentResultSetMapper {
                 userId,
                 text,
                 photoPath,
+                internal,
                 createdAt
         );
     }

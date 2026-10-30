@@ -16,17 +16,17 @@ cd "C:\Users\<Ihr Benutzername>\Desktop\Software_Engineering\stadtmeldung-portal
 $env:PORTAL_ADMIN_USERNAME = "admin"
 $env:PORTAL_ADMIN_PASSWORD = "hier-ein-eigenes-starkes-Passwort-eintragen"
 mvn test
-mvn exec:java
+mvn spring-boot:run
 ```
 
-Danach `http://localhost:3000` im Browser öffnen und „Ich bin Administrator dieser Website“ auswählen. Die Serveradresse ist auf Loopback beschränkt und somit nicht aus dem lokalen Netzwerk erreichbar.
+Danach `http://localhost:3000` im Browser öffnen und unter „Mitarbeiter der Stadt“ anmelden. Administratoren und Mitarbeitende verwenden dasselbe Dashboard; Administratoren erhalten dort zusätzlich den Bereich zur Verwaltung der Mitarbeiterkonten. Die Serveradresse ist auf Loopback beschränkt und somit nicht aus dem lokalen Netzwerk erreichbar.
 
 **Normale Starts danach:** Sind die Admin-Variablen in diesem Terminal gesetzt, können sie entfernt werden. Danach benötigt der Start keine Konto-Variablen mehr:
 
 ```powershell
 Remove-Item Env:PORTAL_ADMIN_USERNAME -ErrorAction SilentlyContinue
 Remove-Item Env:PORTAL_ADMIN_PASSWORD -ErrorAction SilentlyContinue
-mvn exec:java
+mvn spring-boot:run
 ```
 
 Der Admin erstellt und verwaltet Mitarbeiterkonten danach im Portal über **Mitarbeiter verwalten**. Mitarbeiter melden sich im Mitarbeiter-Bereich an und bearbeiten Meldungen im Dashboard. Bürgerkonten können weiterhin über „Registrieren“ angelegt werden.
@@ -37,7 +37,7 @@ Falls PowerShell `mvn` nicht findet, obwohl Maven installiert ist, wurde das Ter
 
 ```powershell
 & "$HOME\Tools\apache-maven-3.10.0\bin\mvn.cmd" test
-& "$HOME\Tools\apache-maven-3.10.0\bin\mvn.cmd" exec:java
+& "$HOME\Tools\apache-maven-3.10.0\bin\mvn.cmd" spring-boot:run
 ```
 
 In einer neu geöffneten PowerShell können Sie mit `mvn -version` prüfen, ob Maven im PATH gefunden wird.
@@ -51,12 +51,23 @@ In einer neu geöffneten PowerShell können Sie mit `mvn -version` prüfen, ob M
 - Unter „Meine Meldungen“ kann der angemeldete Bürger zwischen eigenen Meldungen, Meldungen, für die er gestimmt hat, und Meldungen mit eigenen Updates filtern; die Art der Beteiligung ist zusätzlich an jeder Meldung gekennzeichnet.
 - Bürger können für öffentliche Meldungen stimmen, ihre Stimme später zurücknehmen und zusätzliche Fortschrittsinformationen mit optionalem Foto veröffentlichen.
 - Mitarbeiter sehen die Stimmenzahl und können Meldungen danach sortieren. Bürger sehen verständliche Statusangaben: wartet auf Bearbeitung durch die Stadt, in Bearbeitung durch die Stadt und von der Stadt erledigt. „Alle Meldungen“ ist ein separater Filter.
+- Nicht gelöschte Meldungen erscheinen für Bürger und Mitarbeitende in der Karten- und Listenübersicht. Mitarbeitende und Administratoren können erledigte Meldungen löschen.
+- Mitarbeitende und Administratoren können interne Kommentare zu Meldungen speichern. Diese Kommentare sind ausschließlich für das Stadt-Team sichtbar; Bürger-Updates bleiben öffentlich.
 - Administratoren können Mitarbeiterkonten im Portal erstellen, anzeigen und löschen. Beim Löschen werden aktive Sitzungen des Mitarbeiters beendet.
 - Mitarbeiter und Administratoren können Meldungsstatus ändern.
 - Status- und Kategorieübersicht mit Karte und Filtern.
 - Für Smartphones passt sich die Oberfläche an: Karte, Filter, Meldungsliste und Navigation werden einspaltig und touch-freundlich dargestellt.
 - OSM-Kacheln werden über den dokumentierten Tile-Endpunkt mit sichtbarer Attribution und Referer-Policy geladen.
 - BCrypt-Passworthashes, rollenbasierte Berechtigungen und serverseitige Sitzungen in HttpOnly-/SameSite-Cookies.
+
+## Projektstruktur
+
+- `src/main/java/com/stadtmeldung/StadtmeldungApplication.java` startet Spring Boot und initialisiert SQLite.
+- `src/main/java/com/stadtmeldung/config/` enthält Spring-Konfiguration, Bean-Wiring, Sicherheit und das statische Serving-Verhalten.
+- `src/main/java/com/stadtmeldung/controller/` enthält REST-Controller, nach Verantwortlichkeit getrennt: Anmeldung, Meldungen, Fortschrittsinformationen, Stimmen und Mitarbeiterkonten.
+- `src/main/java/com/stadtmeldung/security/` enthält die Datenbank-Anbindung für Spring Security und die Verwaltung aktiver Sitzungen.
+- Die bestehenden `model/`, `repository/` und `service/` Pakete bleiben die SQLite-Domänen- und Geschäftslogikschichten des Backend-Branches.
+- `public/` ist wie im Frontend-Branch das öffentliche Stammverzeichnis für statische Dateien; die Oberfläche liegt weiterhin unter `public/frontend/` und ist unter `/frontend/` erreichbar. Der Spring-Webserver dient die Dateien nach demselben Verzeichnisprinzip wie Express aus `public/` aus. Die vorhandenen API-Pfade und JSON-Antworten bleiben für diese Oberfläche kompatibel.
 
 ## Daten und Konfiguration
 
@@ -78,6 +89,7 @@ Die Karte verwendet den öffentlichen OpenStreetMap-Tile-Server gemäß dessen [
 - `GET /api/health` – Backend-Status
 - `POST /api/register` – Bürgerkonto erstellen (`username`, `password`)
 - `POST /api/login` / `POST /api/logout` – Anmeldung und Abmeldung
+- `GET /api/auth/csrf` – CSRF-Token für geschützte Änderungen
 - `GET /api/session` – angemeldeten Benutzer prüfen
 - `GET /api/admin/employees` – Mitarbeiter anzeigen (Admin)
 - `POST /api/admin/employees` – Mitarbeiterkonto anlegen (Admin)
@@ -89,7 +101,9 @@ Die Karte verwendet den öffentlichen OpenStreetMap-Tile-Server gemäß dessen [
 - `DELETE /api/reports/:id/votes` – eigene Stimme als Bürger zurücknehmen
 - `GET /api/reports/:id/comments` – öffentliche Fortschrittsinformationen ansehen
 - `POST /api/reports/:id/comments` – Fortschrittsinformation als Bürger ergänzen (`text` bis 1.000 Zeichen, optional `photoData`; Text oder Foto erforderlich)
+- `POST /api/reports/:id/comments/internal` – internen Kommentar als Mitarbeiter/Admin ergänzen (`text`, nur für das Stadt-Team sichtbar)
 - `PATCH /api/reports/:id` – Status ändern (Mitarbeiter/Admin)
+- `DELETE /api/reports/:id` – erledigte Meldung löschen (Mitarbeiter/Admin)
 
 ## Qualitätssicherung
 
@@ -99,4 +113,4 @@ Automatisierte Backend-Funktionstests ausführen:
 mvn test
 ```
 
-Die Tests prüfen unter anderem Benutzernamen-/Passwortvalidierung, Passwortprüfung, konkrete Defektarten, Koordinatenvalidierung, Admin-Berechtigung beim Erstellen und Löschen von Mitarbeiterkonten, Statusänderungen, Bürgerstimmen mit Zurücknehmen und die Rollen-/Inhaltsvalidierung bei Fortschrittsinformationen. Ergänzend sollten die Benutzerfreundlichkeit und die Oberfläche manuell geprüft werden: anonyme Meldung ohne Konto, erste Admin-Einrichtung, Mitarbeiterkonto erstellen/löschen, Mitarbeiteranmeldung, Mitarbeiter-Dashboard ohne Erfassungsfunktionen und Statuswechsel sowie Bürgerregistrierung und -login, Karte/GPS, Foto-Upload, Stimmen, Updates mit Foto und „Meine Meldungen“.
+Die Tests prüfen unter anderem Benutzernamen-/Passwortvalidierung, Passwortprüfung, konkrete Defektarten, Koordinatenvalidierung, Admin-Berechtigung beim Erstellen und Löschen von Mitarbeiterkonten, Statusänderungen, Löschen erledigter Meldungen, interne Kommentare mit Rollenprüfung, Bürgerstimmen mit Zurücknehmen und die Rollen-/Inhaltsvalidierung bei Fortschrittsinformationen. Ergänzend sollten die Benutzerfreundlichkeit und die Oberfläche manuell geprüft werden: anonyme Meldung ohne Konto, erste Admin-Einrichtung, Mitarbeiterkonto erstellen/löschen, Mitarbeiteranmeldung, Mitarbeiter-Dashboard ohne Erfassungsfunktionen und Statuswechsel sowie Bürgerregistrierung und -login, Karte/GPS, Foto-Upload, Stimmen, Updates mit Foto, interne Team-Kommentare und „Meine Meldungen“.

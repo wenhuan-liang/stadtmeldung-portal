@@ -12,6 +12,8 @@ public interface CommentService {
     Comment createComment(long reportId, long userId, String text,
                           String photoPath);
 
+    Comment createInternalComment(long reportId, long userId, String text);
+
     Comment findById(long id);
 
     List<Comment> findByReportId(long reportId);

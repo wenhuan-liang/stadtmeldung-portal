@@ -32,6 +32,7 @@ const DEFECT_TYPE_LABELS = {
   BENCH_OR_PLAYGROUND: 'Beschädigte Bank oder Spielgerät',
   OTHER_DEFECT: 'Anderer Defekt'
 };
+const ALL_DEFECT_TYPES = Object.keys(DEFECT_TYPE_LABELS);
 
 let activeStatusFilter = null;
 let activeParticipationFilter = 'all';
@@ -42,6 +43,15 @@ const commentCache = new Map();
 let map;
 let markerMap = {};
 let activeCategories = new Set(ALL_CATEGORIES);
+let activeDefectTypes = new Set(ALL_DEFECT_TYPES);
+
+function isReportCategoryActive(report) {
+  if (!activeCategories.has(report.category)) return false;
+  if (report.category !== 'Defekt' || activeDefectTypes.size === ALL_DEFECT_TYPES.length) {
+    return true;
+  }
+  return activeDefectTypes.has(report.defectType);
+}
 
 function getPageReports() {
   return currentReports;
@@ -94,7 +104,7 @@ function renderMarkers() {
   markerMap = {};
 
   getPageReports()
-    .filter(r => activeCategories.has(r.category) && (!activeStatusFilter || r.status === activeStatusFilter))
+    .filter(r => isReportCategoryActive(r) && (!activeStatusFilter || r.status === activeStatusFilter))
     .forEach(report => {
       const color = CATEGORY_COLORS[report.category] || '#888';
       const marker = L.circleMarker([report.latitude, report.longitude], {
@@ -126,7 +136,7 @@ function renderStats() {
   const statsRow = document.getElementById('stats-row');
   if (!statsRow) return;
 
-  const all = getPageReports().filter(r => activeCategories.has(r.category));
+  const all = getPageReports().filter(isReportCategoryActive);
   const counts = { new: 0, in_progress: 0, resolved: 0 };
   all.forEach(r => { if (r.status in counts) counts[r.status]++; });
 
@@ -161,7 +171,7 @@ function renderList() {
   const list = document.getElementById('reports-list');
   if (!list) return;
 
-  let filtered = getPageReports().filter(r => activeCategories.has(r.category));
+  let filtered = getPageReports().filter(isReportCategoryActive);
   if (document.body.dataset.page === 'meine-meldungen' &&
       activeParticipationFilter !== 'all') {
     const participationKey = {
@@ -230,16 +240,19 @@ function renderList() {
         ${window.stadtmeldungSession?.role === 'user' ? `<button type="button" class="community-button vote-button" data-action="vote" data-id="${escapeHtml(r.id)}">${r.hasVoted ? 'Stimme zurücknehmen' : 'Für diese Meldung stimmen'}</button>` : ''}
         ${!window.stadtmeldungSession ? `<a class="community-button" href="login.html#user">Anmelden, um abzustimmen</a>` : ''}
         ${window.stadtmeldungSession?.role === 'user' ? `<button type="button" class="community-button comments-toggle" data-action="add-update" data-id="${escapeHtml(r.id)}">Update ergänzen</button>` : ''}
+        ${['staff', 'admin'].includes(window.stadtmeldungSession?.role) ? `<button type="button" class="community-button" data-action="add-internal-comment" data-id="${escapeHtml(r.id)}">Interne Notiz</button>` : ''}
       </div>
       <section class="report-comments" id="comments-${escapeHtml(r.id)}" data-report-id="${escapeHtml(r.id)}" aria-label="Updates zur Meldung"></section>
       ${['staff', 'admin'].includes(window.stadtmeldungSession?.role) ? `
-        <label class="status-edit">Status
+        <div class="status-edit">
+          <label for="report-status-${escapeHtml(r.id)}">Status</label>
           <select class="form-input report-status" data-id="${escapeHtml(r.id)}">
             ${Object.entries(STATUS_LABELS).map(([key, label]) => `
               <option value="${key}"${r.status === key ? ' selected' : ''}>${label}</option>
             `).join('')}
           </select>
-        </label>
+          ${r.status === 'resolved' ? `<button type="button" class="delete-report-button" data-action="delete-report" data-id="${escapeHtml(r.id)}">Erledigte Meldung löschen</button>` : ''}
+        </div>
       ` : ''}
     </li>
   `).join('');
@@ -278,7 +291,51 @@ function parseDate(value) {
 }
 
 function setupFilters() {
-  document.querySelectorAll('.filter-group input[type="checkbox"]').forEach(cb => {
+  const defectCategory = document.getElementById('filter-defect');
+  const defectTypeFilters = [
+    ...document.querySelectorAll('.filter-group [data-defect-type]')
+  ];
+
+  defectCategory?.addEventListener('change', () => {
+    if (defectCategory.checked) {
+      activeCategories.add('Defekt');
+      activeDefectTypes = new Set(ALL_DEFECT_TYPES);
+    } else {
+      activeCategories.delete('Defekt');
+      activeDefectTypes.clear();
+    }
+    defectTypeFilters.forEach(filter => {
+      filter.checked = activeDefectTypes.has(filter.value);
+    });
+    renderStats();
+    renderMarkers();
+    renderList();
+  });
+
+  defectTypeFilters.forEach(filter => {
+    filter.addEventListener('change', () => {
+      if (filter.checked) {
+        activeDefectTypes.add(filter.value);
+        activeCategories.add('Defekt');
+      } else {
+        activeDefectTypes.delete(filter.value);
+        if (activeDefectTypes.size === 0) activeCategories.delete('Defekt');
+      }
+      if (defectCategory) {
+        defectCategory.checked = activeDefectTypes.size > 0;
+        defectCategory.indeterminate =
+          activeDefectTypes.size > 0 &&
+          activeDefectTypes.size < ALL_DEFECT_TYPES.length;
+      }
+      renderStats();
+      renderMarkers();
+      renderList();
+    });
+  });
+
+  document.querySelectorAll(
+    '.filter-group input[type="checkbox"]:not([data-defect-type]):not(#filter-defect)'
+  ).forEach(cb => {
     cb.addEventListener('change', () => {
       if (cb.checked) {
         activeCategories.add(cb.value);
@@ -323,7 +380,7 @@ function setupListClick() {
 }
 
 async function updateReportStatus(id, status) {
-  const response = await fetch(`/api/reports/${encodeURIComponent(id)}`, {
+  const response = await apiFetch(`/api/reports/${encodeURIComponent(id)}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ status })
@@ -337,10 +394,36 @@ async function updateReportStatus(id, status) {
   renderList();
 }
 
+async function deleteCompletedReport(id, button) {
+  if (!window.confirm('Möchten Sie diese erledigte Meldung wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.')) {
+    return;
+  }
+  button.disabled = true;
+  try {
+    const response = await apiFetch(`/api/reports/${encodeURIComponent(id)}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) {
+      const body = await response.json();
+      throw new Error(body.message || 'Meldung konnte nicht gelöscht werden.');
+    }
+    currentReports = currentReports.filter(
+      report => String(report.id) !== String(id)
+    );
+    commentCache.delete(String(id));
+    renderStats();
+    renderMarkers();
+    renderList();
+  } catch (error) {
+    button.disabled = false;
+    throw error;
+  }
+}
+
 async function toggleReportVote(id, button, currentlyVoted) {
   button.disabled = true;
   try {
-    const response = await fetch(`/api/reports/${encodeURIComponent(id)}/votes`, {
+    const response = await apiFetch(`/api/reports/${encodeURIComponent(id)}/votes`, {
       method: currentlyVoted ? 'DELETE' : 'POST'
     });
     const body = await response.json();
@@ -361,7 +444,8 @@ async function toggleReportVote(id, button, currentlyVoted) {
   }
 }
 
-async function renderReportComments(id, panel, showForm = false) {
+async function renderReportComments(id, panel, showForm = false,
+                                    internalForm = false) {
   let comments = commentCache.get(String(id));
   if (!comments) {
     const response = await fetch(`/api/reports/${encodeURIComponent(id)}/comments`);
@@ -373,12 +457,18 @@ async function renderReportComments(id, panel, showForm = false) {
 
   panel.replaceChildren();
   const heading = document.createElement('h4');
-  heading.textContent = 'Aktuelle Updates zur Meldung';
+  heading.textContent = ['staff', 'admin'].includes(
+    window.stadtmeldungSession?.role)
+    ? 'Bürger-Updates und interne Kommentare'
+    : 'Aktuelle Updates zur Meldung';
   panel.append(heading);
   if (comments.length === 0) {
     const empty = document.createElement('p');
     empty.className = 'comments-empty';
-    empty.textContent = 'Noch keine zusätzlichen Informationen.';
+    empty.textContent = ['staff', 'admin'].includes(
+      window.stadtmeldungSession?.role)
+      ? 'Noch keine Bürger-Updates oder internen Kommentare.'
+      : 'Noch keine zusätzlichen Informationen.';
     panel.append(empty);
   } else {
     const list = document.createElement('ul');
@@ -386,7 +476,9 @@ async function renderReportComments(id, panel, showForm = false) {
     comments.forEach(comment => {
       const item = document.createElement('li');
       const author = document.createElement('strong');
-      author.textContent = comment.username;
+      author.textContent = comment.internal
+        ? `Intern – ${comment.username}`
+        : comment.username;
       const date = document.createElement('time');
       date.textContent = formatDateTime(comment.createdAt);
       item.append(author, date);
@@ -412,30 +504,42 @@ async function renderReportComments(id, panel, showForm = false) {
     panel.append(list);
   }
 
-  if (showForm && window.stadtmeldungSession?.role === 'user') {
+  if ((showForm && window.stadtmeldungSession?.role === 'user') ||
+      (internalForm && ['staff', 'admin'].includes(
+        window.stadtmeldungSession?.role))) {
     const form = document.createElement('form');
     form.className = 'comment-form';
     form.dataset.reportId = String(id);
+    form.dataset.internal = String(internalForm);
     const input = document.createElement('textarea');
     input.className = 'form-input form-textarea';
     input.name = 'text';
     input.maxLength = 1000;
-    input.placeholder = 'Was hat sich seit der Meldung verändert? (optional, wenn Sie ein Foto hinzufügen)';
-    input.required = false;
-    const photoLabel = document.createElement('label');
-    photoLabel.className = 'comment-photo-label';
-    photoLabel.textContent = 'Foto hinzufügen (optional, max. 5 MB)';
-    const photoInput = document.createElement('input');
-    photoInput.type = 'file';
-    photoInput.name = 'photo';
-    photoInput.accept = 'image/jpeg,image/png,image/webp,image/gif';
-    photoInput.className = 'form-input form-file';
-    photoLabel.append(photoInput);
+    input.placeholder = internalForm
+      ? 'Interne Notiz (nur für Mitarbeitende sichtbar)'
+      : 'Was hat sich seit der Meldung verändert? (optional, wenn Sie ein Foto hinzufügen)';
+    input.required = !internalForm;
+    if (!internalForm) {
+      const photoLabel = document.createElement('label');
+      photoLabel.className = 'comment-photo-label';
+      photoLabel.textContent = 'Foto hinzufügen (optional, max. 5 MB)';
+      const photoInput = document.createElement('input');
+      photoInput.type = 'file';
+      photoInput.name = 'photo';
+      photoInput.accept = 'image/jpeg,image/png,image/webp,image/gif';
+      photoInput.className = 'form-input form-file';
+      photoLabel.append(photoInput);
+      form.append(input, photoLabel);
+    } else {
+      form.append(input);
+    }
     const button = document.createElement('button');
     button.className = 'community-button';
     button.type = 'submit';
-    button.textContent = 'Update teilen';
-    form.append(input, photoLabel, button);
+    button.textContent = internalForm
+      ? 'Interne Notiz speichern'
+      : 'Update teilen';
+    form.append(button);
     panel.append(form);
   }
 }
@@ -443,7 +547,8 @@ async function renderReportComments(id, panel, showForm = false) {
 async function submitReportComment(form) {
   const id = form.dataset.reportId;
   const text = form.elements.text.value.trim();
-  const photo = form.elements.photo.files[0];
+  const internal = form.dataset.internal === 'true';
+  const photo = internal ? null : form.elements.photo.files[0];
   if (!text && !photo) {
     throw new Error('Bitte geben Sie einen Text ein oder fügen Sie ein Foto hinzu.');
   }
@@ -453,7 +558,10 @@ async function submitReportComment(form) {
   const submitButton = form.querySelector('button[type="submit"]');
   submitButton.disabled = true;
   try {
-    const response = await fetch(`/api/reports/${encodeURIComponent(id)}/comments`, {
+    const endpoint = internal
+      ? `/api/reports/${encodeURIComponent(id)}/comments/internal`
+      : `/api/reports/${encodeURIComponent(id)}/comments`;
+    const response = await apiFetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -485,9 +593,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!['staff', 'admin'].includes(window.stadtmeldungSession?.role)) {
       document.body.classList.add('role-citizen');
     }
-    if (window.stadtmeldungSession?.role === 'admin') {
-      return;
-    }
     return loadReports();
   }).catch(error => {
     console.error(error);
@@ -515,6 +620,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         renderReportComments(id, panel, true)
           .catch(error => window.alert(error.message));
+      } else if (action === 'add-internal-comment') {
+        const panel = document.getElementById(`comments-${id}`);
+        const existingForm = panel.querySelector('.comment-form');
+        if (existingForm) {
+          existingForm.remove();
+          return;
+        }
+        renderReportComments(id, panel, false, true)
+          .catch(error => window.alert(error.message));
+      } else if (action === 'delete-report') {
+        deleteCompletedReport(id, button).catch(error => {
+          window.alert(error.message);
+        });
       }
     });
     list.addEventListener('submit', event => {

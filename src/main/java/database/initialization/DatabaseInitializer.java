@@ -59,6 +59,8 @@ public final class DatabaseInitializer {
         executeSql(conn, createCommentsSql());
         ensureColumn(conn, "comments", "photo_path",
                 "TEXT NOT NULL DEFAULT ''");
+        ensureColumn(conn, "comments", "is_internal",
+                "INTEGER NOT NULL DEFAULT 0");
         executeSql(conn, createReportVotesSql());
         executeSql(conn, createAttachmentsSql());
     }
@@ -123,6 +125,7 @@ public final class DatabaseInitializer {
                 user_id INTEGER NOT NULL,
                 text TEXT NOT NULL,
                 photo_path TEXT NOT NULL DEFAULT '',
+                is_internal INTEGER NOT NULL DEFAULT 0,
                 created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
                 FOREIGN KEY (report_id) REFERENCES reports(id)

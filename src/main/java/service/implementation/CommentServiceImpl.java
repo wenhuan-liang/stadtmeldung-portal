@@ -66,6 +66,31 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    public Comment createInternalComment(long reportId, long userId,
+                                         String text) {
+        validateId(reportId);
+        validateId(userId);
+        validateText(text, "");
+
+        if (reportRepository.findById(reportId) == null) {
+            throw new IllegalArgumentException(
+                    "Report not found: " + reportId);
+        }
+
+        User user = userRepository.findById(userId);
+        if (user == null || (user.getRole() != Role.EMPLOYEE &&
+                user.getRole() != Role.ADMIN)) {
+            throw new SecurityException(
+                    "Only employees and admins can add internal comments");
+        }
+
+        Comment comment = new Comment(reportId, userId, text.trim(), "",
+                true);
+        commentRepository.save(comment);
+        return comment;
+    }
+
+    @Override
     public Comment findById(long id) {
 
         validateId(id);

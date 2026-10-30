@@ -27,6 +27,8 @@ import java.util.HashSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -152,6 +154,63 @@ class BackendServiceTest {
         users.save(employee);
         service.updateStatus(1L, Status.COMPLETED, 2L);
         assertEquals(Status.COMPLETED, service.findById(1L).getStatus());
+    }
+
+    @Test
+    void onlyStaffCanDeleteCompletedReports() {
+        MemoryUsers users = new MemoryUsers();
+        MemoryReports reports = new MemoryReports();
+        User citizen = new User("citizen", "citizen", "hash", Role.CITIZEN);
+        users.save(citizen);
+        User employee = new User("employee", "employee", "hash", Role.EMPLOYEE);
+        users.save(employee);
+        Report completed = new Report(citizen.getId(), "Completed",
+                Category.OTHER, "", "Done", "", 52.5, 13.4);
+        completed.setStatus(Status.COMPLETED);
+        reports.save(completed);
+        Report active = new Report(citizen.getId(), "Active",
+                Category.OTHER, "", "Still active", "", 52.5, 13.4);
+        reports.save(active);
+        ReportServiceImpl service = new ReportServiceImpl(reports, users);
+
+        assertThrows(SecurityException.class,
+                () -> service.deleteCompletedReport(
+                        completed.getId(), citizen.getId()));
+        assertThrows(IllegalStateException.class,
+                () -> service.deleteCompletedReport(
+                        active.getId(), employee.getId()));
+
+        service.deleteCompletedReport(completed.getId(), employee.getId());
+        assertNull(service.findById(completed.getId()));
+        assertNotNull(service.findById(active.getId()));
+    }
+
+    @Test
+    void internalCommentsAreRestrictedToStaff() {
+        MemoryUsers users = new MemoryUsers();
+        MemoryReports reports = new MemoryReports();
+        MemoryComments comments = new MemoryComments();
+        User citizen = new User("citizen", "citizen", "hash", Role.CITIZEN);
+        users.save(citizen);
+        User employee = new User("employee", "employee", "hash", Role.EMPLOYEE);
+        users.save(employee);
+        Report report = new Report(citizen.getId(), "Report",
+                Category.OTHER, "", "Description", "", 52.5, 13.4);
+        reports.save(report);
+        CommentServiceImpl service = new CommentServiceImpl(
+                comments, reports, users);
+
+        assertThrows(SecurityException.class,
+                () -> service.createInternalComment(
+                        report.getId(), citizen.getId(), "Internal note"));
+        Comment internal = service.createInternalComment(
+                report.getId(), employee.getId(), "  Internal note  ");
+        Comment publicUpdate = service.createComment(
+                report.getId(), citizen.getId(), "Public update");
+
+        assertTrue(internal.isInternal());
+        assertEquals("Internal note", internal.getText());
+        assertFalse(publicUpdate.isInternal());
     }
 
     @Test

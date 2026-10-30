@@ -39,8 +39,9 @@ public class DatabaseCommentRepository implements CommentRepository {
     public void save(Comment comment) {
 
         String sql = """
-            INSERT INTO comments (report_id, user_id, text, photo_path)
-            VALUES (?, ?, ?, ?);
+            INSERT INTO comments
+                (report_id, user_id, text, photo_path, is_internal)
+            VALUES (?, ?, ?, ?, ?);
             """;
 
         try (Connection conn = connectionProvider.getConnection();
@@ -52,6 +53,7 @@ public class DatabaseCommentRepository implements CommentRepository {
             pstmt.setString(3, comment.getText());
             pstmt.setString(4, comment.getPhotoPath() == null
                     ? "" : comment.getPhotoPath());
+            pstmt.setInt(5, comment.isInternal() ? 1 : 0);
 
             pstmt.executeUpdate();
 

@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FixMyCity – Meine Meldungen</title>
-  <link rel="icon" type="image/svg+xml" href="/fixmycity-logo.svg">
+  <link rel="icon" type="image/svg+xml" href="/frontend/fixmycity-logo.svg">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=2">
 </head>
 <body data-page="meine-meldungen">
   <header class="navbar">
     <a class="navbar-brand" href="index.html">
-      <img src="/fixmycity-logo.svg" alt="" width="36" height="36">
+      <img src="/frontend/fixmycity-logo.svg" alt="" width="36" height="36">
       <span>FixMyCity</span>
     </a>
     <nav class="navbar-tabs">
@@ -87,8 +87,15 @@
     Neue Meldung
   </button>
 
+  <footer class="site-footer">
+    <span>Impressum</span>
+    <span class="site-footer-separator" aria-hidden="true">—</span>
+    <span>FixMyCity © 2026 HWG Ludwigshafen</span>
+  </footer>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="auth.js?v=9"></script>
-  <script src="app.js?v=13"></script>
+  <script src="api.js?v=1"></script>
+  <script src="auth.js?v=11"></script>
+  <script src="app.js?v=15"></script>
 </body>
 </html>

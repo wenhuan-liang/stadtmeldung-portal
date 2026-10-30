@@ -207,6 +207,32 @@ public class ReportServiceImpl implements ReportService {
         reportRepository.deleteById(id);
     }
 
+    @Override
+    public void deleteCompletedReport(long id, long currentUserId) {
+        validateId(id);
+        validateId(currentUserId);
+
+        User currentUser = userRepository.findById(currentUserId);
+        if (currentUser == null ||
+                (currentUser.getRole() != Role.EMPLOYEE &&
+                 currentUser.getRole() != Role.ADMIN)) {
+            throw new SecurityException(
+                    "Only employees and admins can delete completed reports");
+        }
+
+        Report report = reportRepository.findById(id);
+        if (report == null) {
+            throw new IllegalArgumentException(
+                    "Report not found: " + id);
+        }
+        if (report.getStatus() != Status.COMPLETED) {
+            throw new IllegalStateException(
+                    "Only completed reports can be deleted");
+        }
+
+        reportRepository.deleteById(id);
+    }
+
     // Validierung der Meldungsdaten
     private void validateReport(String title, Category category,
                                 String defectType,

@@ -4,19 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FixMyCity – Stadtmeldungen</title>
-  <link rel="icon" type="image/svg+xml" href="/fixmycity-logo.svg">
+  <link rel="icon" type="image/svg+xml" href="/frontend/fixmycity-logo.svg">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=2">
 </head>
 <body data-page="hauptseite">
   <header class="navbar">
     <a class="navbar-brand" href="index.html">
-      <img src="/fixmycity-logo.svg" alt="" width="36" height="36">
+      <img src="/frontend/fixmycity-logo.svg" alt="" width="36" height="36">
       <span>FixMyCity</span>
     </a>
     <nav class="navbar-tabs">
       <a href="index.html" class="tab tab--active">Hauptseite</a>
       <a href="meine-meldungen.html" class="tab">Meine Meldungen</a>
+      <a href="mitarbeiter.html" class="tab" style="display: none;">Mitarbeiterkonten verwalten</a>
     </nav>
     <div class="navbar-auth" id="navbar-auth"></div>
   </header>
@@ -26,11 +27,43 @@
       <section class="card filter-card">
         <h2 class="card-title">Filter</h2>
         <div class="filter-group">
-          <label class="filter-label">
-            <input type="checkbox" value="Defekt" checked>
-            <span class="filter-dot" style="background: #D4622A"></span>
-            Defekt
-          </label>
+          <div class="filter-category filter-category--defect">
+            <label class="filter-label">
+              <input type="checkbox" value="Defekt" id="filter-defect" checked>
+              <span class="filter-dot" style="background: #D4622A"></span>
+              Defekt
+            </label>
+            <div class="filter-subcategories" aria-label="Defektarten filtern">
+              <label class="filter-label">
+                <input type="checkbox" value="POTHOLE" data-defect-type checked>
+                Schlagloch / abgesackte Fahrbahn
+              </label>
+              <label class="filter-label">
+                <input type="checkbox" value="ROAD_SURFACE" data-defect-type checked>
+                Risse oder Abplatzungen in der Fahrbahn
+              </label>
+              <label class="filter-label">
+                <input type="checkbox" value="SIDEWALK" data-defect-type checked>
+                Beschädigter Gehweg oder Bordstein
+              </label>
+              <label class="filter-label">
+                <input type="checkbox" value="STREETLIGHT" data-defect-type checked>
+                Defekte Straßenbeleuchtung
+              </label>
+              <label class="filter-label">
+                <input type="checkbox" value="TRAFFIC_SIGN" data-defect-type checked>
+                Beschädigtes oder fehlendes Verkehrsschild
+              </label>
+              <label class="filter-label">
+                <input type="checkbox" value="BENCH_OR_PLAYGROUND" data-defect-type checked>
+                Beschädigte Bank oder Spielgerät
+              </label>
+              <label class="filter-label">
+                <input type="checkbox" value="OTHER_DEFECT" data-defect-type checked>
+                Anderer Defekt
+              </label>
+            </div>
+          </div>
           <label class="filter-label">
             <input type="checkbox" value="Verunreinigung" checked>
             <span class="filter-dot" style="background: #4A9A5E"></span>
@@ -78,8 +111,15 @@
     Neue Meldung
   </button>
 
+  <footer class="site-footer">
+    <span>Impressum</span>
+    <span class="site-footer-separator" aria-hidden="true">—</span>
+    <span>FixMyCity © 2026 HWG Ludwigshafen</span>
+  </footer>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="auth.js?v=9"></script>
-  <script src="app.js?v=13"></script>
+  <script src="api.js?v=1"></script>
+  <script src="auth.js?v=11"></script>
+  <script src="app.js?v=17"></script>
 </body>
 </html>

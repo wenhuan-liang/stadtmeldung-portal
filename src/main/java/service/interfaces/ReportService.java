@@ -28,4 +28,6 @@ public interface ReportService {
     void updateStatus(long reportId, Status status,long currentUserId);
 
     void deleteReport(long id, long currentUserId);
+
+    void deleteCompletedReport(long id, long currentUserId);
 }

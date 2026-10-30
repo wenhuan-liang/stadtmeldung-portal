@@ -4,16 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FixMyCity – Mitarbeiter verwalten</title>
-  <link rel="icon" type="image/svg+xml" href="/fixmycity-logo.svg">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/svg+xml" href="/frontend/fixmycity-logo.svg">
+  <link rel="stylesheet" href="styles.css?v=2">
 </head>
 <body data-page="mitarbeiter">
   <header class="navbar">
     <a class="navbar-brand" href="index.html">
-      <img src="/fixmycity-logo.svg" alt="" width="36" height="36">
+      <img src="/frontend/fixmycity-logo.svg" alt="" width="36" height="36">
       <span>FixMyCity</span>
     </a>
     <nav class="navbar-tabs">
+      <a href="index.html" class="tab">Dashboard</a>
       <a href="mitarbeiter.html" class="tab tab--active">Mitarbeiterkonten verwalten</a>
     </nav>
     <div class="navbar-auth" id="navbar-auth"></div>
@@ -56,7 +57,14 @@
     </section>
   </main>
 
-  <script src="auth.js?v=9"></script>
-  <script src="mitarbeiter.js?v=3"></script>
+  <footer class="site-footer">
+    <span>Impressum</span>
+    <span class="site-footer-separator" aria-hidden="true">—</span>
+    <span>FixMyCity © 2026 HWG Ludwigshafen</span>
+  </footer>
+
+  <script src="api.js?v=1"></script>
+  <script src="auth.js?v=11"></script>
+  <script src="mitarbeiter.js?v=4"></script>
 </body>
 </html>

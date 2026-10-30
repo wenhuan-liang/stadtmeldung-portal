@@ -9,6 +9,7 @@ public class Comment {
     private Long userId;
     private String text;
     private String photoPath;
+    private boolean internal;
     private LocalDateTime createdAt;
 
     // Konstruktor für neue Kommentare
@@ -18,10 +19,16 @@ public class Comment {
 
     public Comment(Long reportId, Long userId, String text,
                    String photoPath) {
+        this(reportId, userId, text, photoPath, false);
+    }
+
+    public Comment(Long reportId, Long userId, String text,
+                   String photoPath, boolean internal) {
         this.reportId = reportId;
         this.userId = userId;
         this.text = text;
         this.photoPath = photoPath;
+        this.internal = internal;
     }
 
     // Konstruktor für Kommentare aus der Datenbank
@@ -32,12 +39,19 @@ public class Comment {
 
     public Comment(Long id, Long reportId, Long userId, String text,
                    String photoPath, LocalDateTime createdAt) {
+        this(id, reportId, userId, text, photoPath, false, createdAt);
+    }
+
+    public Comment(Long id, Long reportId, Long userId, String text,
+                   String photoPath, boolean internal,
+                   LocalDateTime createdAt) {
 
         this.id = id;
         this.reportId = reportId;
         this.userId = userId;
         this.text = text;
         this.photoPath = photoPath;
+        this.internal = internal;
         this.createdAt = createdAt;
     }
 
@@ -81,6 +95,14 @@ public class Comment {
 
     public void setPhotoPath(String photoPath) {
         this.photoPath = photoPath;
+    }
+
+    public boolean isInternal() {
+        return internal;
+    }
+
+    public void setInternal(boolean internal) {
+        this.internal = internal;
     }
 
     public LocalDateTime getCreatedAt() {

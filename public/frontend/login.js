@@ -1,5 +1,5 @@
 async function requestAccount(endpoint, username, password) {
-  const response = await fetch(endpoint, {
+  const response = await apiFetch(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password })
@@ -30,12 +30,10 @@ async function login(username, password, allowedRoles, errorId) {
   try {
     const user = await requestAccount('/api/login', username, password);
     if (!allowedRoles.includes(user.role)) {
-      await fetch('/api/logout', { method: 'POST' });
+      await apiFetch('/api/logout', { method: 'POST' });
       throw new Error('Dieser Account kann sich in diesem Bereich nicht anmelden.');
     }
-    window.location.href = user.role === 'admin'
-      ? 'mitarbeiter.html'
-      : 'index.html';
+    window.location.href = 'index.html';
   } catch (error) {
     showError(errorId, error.message);
   }
@@ -64,11 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   document.getElementById('btn-role-user').addEventListener('click', () => showView('view-user-login'));
   document.getElementById('btn-role-staff').addEventListener('click', () => showView('view-staff-login'));
-  document.getElementById('btn-role-admin').addEventListener('click', () => showView('view-admin-login'));
   document.getElementById('link-to-register').addEventListener('click', e => { e.preventDefault(); showView('view-user-register'); });
+  document.getElementById('link-register-from-user').addEventListener('click', e => { e.preventDefault(); showView('view-user-register'); });
 
   // User Login
-  document.getElementById('link-register-from-user').addEventListener('click', e => { e.preventDefault(); showView('view-register'); });
   document.getElementById('btn-user-login').addEventListener('click', async () => {
     hideError('user-login-error');
     const username = document.getElementById('user-login-username').value.trim();
@@ -82,17 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
     hideError('staff-login-error');
     const username = document.getElementById('staff-login-username').value.trim();
     const password = document.getElementById('staff-login-password').value;
-    await login(username, password, ['staff'], 'staff-login-error');
+    await login(username, password, ['staff', 'admin'], 'staff-login-error');
   });
   onEnter(['staff-login-username', 'staff-login-password'], 'btn-staff-login');
-
-  document.getElementById('btn-admin-login').addEventListener('click', async () => {
-    hideError('admin-login-error');
-    const username = document.getElementById('admin-login-username').value.trim();
-    const password = document.getElementById('admin-login-password').value;
-    await login(username, password, ['admin'], 'admin-login-error');
-  });
-  onEnter(['admin-login-username', 'admin-login-password'], 'btn-admin-login');
 
   // Register: Rolle wählen
   document.getElementById('btn-role-register-user').addEventListener('click', () => showView('view-user-register'));

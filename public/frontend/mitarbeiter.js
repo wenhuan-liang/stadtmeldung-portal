@@ -57,7 +57,7 @@ async function deleteEmployee(id, username, button) {
   error.hidden = true;
   success.hidden = true;
   try {
-    const response = await fetch(
+    const response = await apiFetch(
       `/api/admin/employees/${encodeURIComponent(id)}`,
       { method: 'DELETE' }
     );
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const username = document.getElementById('employee-username').value.trim();
     const password = document.getElementById('employee-password').value;
     try {
-      const response = await fetch('/api/admin/employees', {
+      const response = await apiFetch('/api/admin/employees', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
