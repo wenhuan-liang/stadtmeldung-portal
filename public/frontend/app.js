@@ -253,7 +253,7 @@ function renderList() {
           </select>
           ${r.status === 'resolved' ? `<button type="button" class="delete-report-button" data-action="delete-report" data-id="${escapeHtml(r.id)}">Erledigte Meldung löschen</button>` : ''}
         </div>
-        ${r.status === 'resolved' ? '<p class="status-retention-note">Ohne manuelle Löschung nach 7 Tagen automatisch gelöscht. Prüfung stündlich, solange das Portal läuft.</p>' : ''}
+        ${r.status === 'resolved' ? '<p class="status-retention-note">Wenn Sie diese Meldung nicht manuell löschen, wird sie 7 Tage nach der Markierung als erledigt automatisch gelöscht.</p>' : ''}
       ` : ''}
     </li>
   `).join('');
@@ -649,8 +649,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (event.target.value === 'resolved' &&
           report?.status !== 'resolved' &&
           !window.confirm(
-            'Wenn Sie diese Meldung als erledigt markieren, können Sie sie weiterhin manuell löschen. ' +
-            'Ohne manuelle Löschung wird sie nach 7 Tagen automatisch gelöscht. Die Prüfung erfolgt stündlich, solange das Portal läuft. Fortfahren?'
+            'Nachdem Sie diese Meldung als erledigt markieren, können Sie sie manuell löschen. ' +
+            'Wenn Sie sie nicht manuell löschen, wird sie 7 Tage nach dieser Markierung automatisch gelöscht. Möchten Sie fortfahren?'
           )) {
         event.target.value = report?.status || 'new';
         return;
