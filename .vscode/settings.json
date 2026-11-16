@@ -1,3 +1,6 @@
 {
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "plantuml.diagramsRoot": "docs/uml",
+    "plantuml.exportOutDir": "docs/uml/export",
+    "plantuml.exportFormat": "svg"
 }

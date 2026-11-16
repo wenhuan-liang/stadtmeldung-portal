@@ -1,0 +1,63 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Anonymer Besucher" as Anonymous
+actor "Buerger" as Citizen
+actor "Mitarbeiter" as Employee
+actor "Administrator" as Admin
+
+Admin --|> Employee
+
+rectangle "FixMyCity" {
+  usecase "Meldungen auf Karte\nund in Liste ansehen" as UC_Browse
+  usecase "Meldung anonym\neinreichen" as UC_AnonymousReport
+  usecase "Buergerkonto erstellen" as UC_Register
+  usecase "Anmelden / abmelden" as UC_Login
+  usecase "Eigene Meldungen\nund Beteiligung ansehen" as UC_Mine
+  usecase "Fuer Meldung stimmen /\nStimme zuruecknehmen" as UC_Vote
+  usecase "Oeffentliches Update\nmit optionalem Foto ergaenzen" as UC_Update
+  usecase "Anhang an eigene\nMeldung verwalten" as UC_Attachment
+  usecase "Meldungsstatus aendern" as UC_Status
+  usecase "Interne Notiz\nzu Meldung hinzufuegen" as UC_Internal
+  usecase "Erledigte Meldung loeschen" as UC_Delete
+  usecase "Mitarbeiterkonten\nanlegen und loeschen" as UC_Employees
+}
+
+Anonymous --> UC_Browse
+Anonymous --> UC_AnonymousReport
+Anonymous --> UC_Register
+Anonymous --> UC_Login
+
+Citizen --> UC_Browse
+Citizen --> UC_AnonymousReport
+Citizen --> UC_Login
+Citizen --> UC_Mine
+Citizen --> UC_Vote
+Citizen --> UC_Update
+Citizen --> UC_Attachment
+
+Employee --> UC_Browse
+Employee --> UC_Login
+Employee --> UC_Status
+Employee --> UC_Internal
+Employee --> UC_Delete
+
+Admin --> UC_Employees
+
+note right of UC_Internal
+  Interne Kommentare sind nur fuer
+  Mitarbeiter und Administratoren sichtbar.
+end note
+
+note bottom of UC_Delete
+  Nur Meldungen mit Status "Erledigt"
+  koennen geloescht werden.
+end note
+
+note bottom of UC_Attachment
+  REST-Endpunkte sind vorhanden;
+  ein separater Ablauf ist derzeit
+  nicht in der Benutzeroberflaeche eingebunden.
+end note
+@enduml

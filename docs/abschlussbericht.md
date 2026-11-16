@@ -16,7 +16,7 @@ Die Aufgabenstellung beschreibt drei zentrale Meldungskategorien:
 
 Für jede Meldung müssen Angaben zur Position, eine textuelle Beschreibung und optional ein Foto hinterlegt werden können. Zuständige Mitarbeiter der Stadt sollen in der Lage sein, die Meldungen einzusehen, zu bearbeiten und nach Erledigung zu löschen.
 
-Die Anwendung erfüllt diese Anforderungen durch eine zentrale Weboberfläche, in der Meldungen erfasst und anhand ihrer Kategorie sowie ihres Status verwaltet werden.
+Die Anwendung erfüllt diese Anforderungen durch eine zentrale Weboberfläche, in der Meldungen erfasst und anhand ihrer Kategorie sowie ihres Status verwaltet werden. Bei Defekten wird zusätzlich eine konkrete Unterkategorie ausgewählt, beispielsweise Schlagloch, Fahrbahnschaden oder defekte Straßenbeleuchtung.
 
 ## 3. Anforderungen an Funktionalität und Benutzerinteraktion
 
@@ -32,9 +32,9 @@ Die Software umfasst die folgenden Kernfunktionalitäten:
 
 2. Verwaltung der Meldungen
    - Anzeige aller Meldungen
-   - Filterung nach Kategorie
+   - Filterung nach Kategorie und konkreter Defektart
    - Statusverwaltung: Neu, In Bearbeitung, Erledigt
-   - Löschen von Meldungen
+   - Mitarbeitende und Administratoren können erledigte Meldungen löschen.
 
 3. Visualisierung
    - Interaktive OpenStreetMap-Karte via Leaflet
@@ -47,26 +47,29 @@ Die Software umfasst die folgenden Kernfunktionalitäten:
    - Angemeldete Bürger können für vorhandene Meldungen stimmen und ihre Stimme zurücknehmen.
    - Bürger können ergänzende Informationen und optionale Fotos zum aktuellen Stand einer Meldung teilen.
    - Mitarbeitende können Meldungen nach der Anzahl der Stimmen sortieren.
+6. Rollen und interne Zusammenarbeit
+   - Anonyme Besucher können Meldungen ohne Konto einreichen. Bürgerkonten ermöglichen die Verwaltung eigener Meldungen und Beteiligungen.
+   - Administratoren verwalten Mitarbeiterkonten; Mitarbeitende und Administratoren können Status ändern und interne, nur für das Stadt-Team sichtbare Kommentare hinterlegen.
 
 ## 4. Architekturbeschreibung
 
-Die Anwendung folgt einer einfachen dreischichtigen Struktur:
+Die Anwendung verwendet eine geschichtete Struktur mit getrenntem Frontend, Spring-Boot-REST-API, Geschäftslogik und Datenzugriff:
 
 ### Frontend
 
 Die Benutzeroberfläche wird als statische HTML-, CSS- und JavaScript-Anwendung implementiert. Die Darstellung erfolgt in einem modernen Dashboard-Stil mit zentralem Formular zur Meldungserfassung und einer Meldungsliste zur Verwaltung.
 
-### Backend
+### Backend und REST-API
 
-Das Backend basiert auf Java 17 und stellt mit dem JDK-HTTP-Server eine same-origin HTTP-API bereit. Die Oberfläche wird vom selben Prozess ausgeliefert; API und Frontend laufen damit lokal auf demselben Computer. Die Anwendung bindet standardmäßig ausschließlich an Loopback (127.0.0.1).
+Das Backend basiert auf Java 17 und Spring Boot. REST-Controller stellen die API unter `/api` bereit; Spring Boot liefert außerdem die statische Oberfläche aus `public/` aus. Dadurch verwenden Frontend und API dieselbe Herkunft und laufen lokal im selben Prozess. Die Anwendung bindet standardmäßig ausschließlich an Loopback (127.0.0.1).
 
-Die API ermöglicht Anmeldung und Abmeldung, optionale Bürgerregistrierung, anonyme Meldungserfassung, das Abrufen eigener bzw. relevanter Meldungen, widerrufbare Bürgerstimmen, öffentliche Fortschrittsinformationen mit optionalen Fotos sowie Statusänderungen durch Mitarbeitende und Administratoren. In „Meine Meldungen“ werden eigene Meldungen sowie Meldungen angezeigt, für die der Bürger gestimmt oder die er ergänzt hat. Diese Beteiligungsarten lassen sich getrennt filtern und werden zusätzlich an den jeweiligen Meldungen gekennzeichnet. Die Anmeldung unterscheidet Bürger, Mitarbeitende der Stadt und Administratoren; Anmeldelinks aus Bürgeransichten öffnen direkt die Bürgeranmeldung. Anonyme Besucher können ohne Konto Meldungen einreichen. Die Mitarbeiteroberfläche dient ausschließlich der Einsicht und Bearbeitung und bietet keine Erfassungs- oder „Meine Meldungen“-Funktion. Bürger sehen verständliche Statusbezeichnungen („Wartet auf Bearbeitung durch die Stadt“, „In Bearbeitung durch die Stadt“, „Von der Stadt erledigt“). „Alle Meldungen“ steht als eigener Filter außerhalb dieser Statusgruppen. Der erste Administrator wird bei der Ersteinrichtung provisioniert; anschließend können ausschließlich Administratoren neue Mitarbeiterkonten anlegen, vorhandene Mitarbeiter einsehen und Mitarbeiterkonten löschen. Beim Löschen werden die Sitzungen des Mitarbeiters beendet. Service- und Repository-Schichten aus dem Backend-Zweig bleiben erhalten.
+Die API ermöglicht Anmeldung und Abmeldung, Bürgerregistrierung, anonyme Meldungserfassung, das Abrufen eigener bzw. relevanter Meldungen, widerrufbare Bürgerstimmen, öffentliche Fortschrittsinformationen mit optionalen Fotos sowie Statusänderungen durch Mitarbeitende und Administratoren. Zusätzlich existieren REST-Endpunkte zur Verwaltung weiterer Anhänge an eigenen Meldungen. Dieser separate Anhangsablauf ist derzeit nicht in die Benutzeroberfläche eingebunden; das Formular zum Einreichen einer Meldung übermittelt sein optionales Foto direkt mit der Meldung. Interne Kommentare werden separat gespeichert und nur an Mitarbeitende und Administratoren ausgeliefert. In „Meine Meldungen“ werden eigene Meldungen sowie Meldungen angezeigt, für die der Bürger gestimmt oder die er ergänzt hat. Diese Beteiligungsarten lassen sich getrennt filtern und werden zusätzlich an den jeweiligen Meldungen gekennzeichnet. Die Mitarbeiteroberfläche dient der Einsicht und Bearbeitung; sie bietet keine Meldungserfassung und keine „Meine Meldungen“-Funktion. Der erste Administrator wird bei der Ersteinrichtung provisioniert; anschließend können ausschließlich Administratoren Mitarbeiterkonten anlegen, anzeigen und löschen. Beim Löschen werden die Sitzungen des Mitarbeiters beendet. Die Service- und Repository-Schichten des Backend-Zweigs bleiben erhalten.
 
 Die Leaflet-Karten verwenden den offiziellen OSM-Tile-Endpunkt, sichtbare Attribution und eine Referrer-Policy, die den für Browser-Tileanfragen notwendigen Referer zulässt.
 
 ### Datenhaltung und Kontosicherheit
 
-SQLite speichert Benutzer und Meldungen lokal in `portal.db`; optionale Fotos liegen unter `uploads/`. Passwörter werden serverseitig mit BCrypt gehasht und nicht im Klartext gespeichert. Nach der Anmeldung erhält der Browser ein zufälliges, serverseitig geprüftes Sitzungstoken in einem HttpOnly-/SameSite-Cookie. Rollen werden serverseitig geprüft und können nicht über das Frontend gesetzt werden.
+SQLite speichert Benutzer, Meldungen, Kommentare, Stimmen und Anhangspfade lokal in `portal.db`; Bilddateien liegen unter `uploads/`. Passwörter werden serverseitig mit BCrypt gehasht und nicht im Klartext gespeichert. Spring Security verwaltet die Anmeldung über eine serverseitige Sitzung im Sitzungscookie. Schreibzugriffe sind mit CSRF-Schutz abgesichert; Rollen und Berechtigungen werden serverseitig geprüft und können nicht über das Frontend gesetzt werden.
 
 Da die Anwendung nur auf Loopback lauscht, verlassen Zugangsdaten den Computer nicht über das LAN. HTTP und Cookies sind jedoch keine Transportverschlüsselung. Für einen Zugriff von anderen Geräten ist eine HTTPS-Konfiguration erforderlich.
 
@@ -75,7 +78,8 @@ Da die Anwendung nur auf Loopback lauscht, verlassen Zugangsdaten den Computer n
 ### Web-Technologien
 
 - HTML5, CSS3 und JavaScript
-- Java 17 HTTP-Server und Maven
+- Java 17, Spring Boot und Maven
+- REST-API und Spring Security
 - SQLite/JDBC
 - Leaflet
 - BCrypt
@@ -106,7 +110,7 @@ Die Aufteilung in Frontend-, Backend- und Gesamtsystem-Komponenten ist in einem 
 
 ## 7. Qualitätssicherung
 
-Automatisierte JUnit-Tests prüfen einzelne Backend-Funktionen, insbesondere Registrierung und Passwortprüfung, Validierung von Meldungen, konkrete Defektarten, Koordinaten, die Admin-Berechtigung zur Mitarbeiterverwaltung, Rollenberechtigungen, Löschen von Mitarbeiterkonten, Stimmen und Zurücknehmen sowie das Anlegen und Validieren von Fortschrittsinformationen. Die Tests werden mit `mvn test` ausgeführt.
+Automatisierte JUnit-Service-Tests prüfen einzelne Backend-Funktionen, darunter Registrierung und Passwortprüfung, Meldungsvalidierung, konkrete Defektarten und Koordinaten, die Admin-Berechtigung zur Mitarbeiterverwaltung, Statusänderungen, das Löschen erledigter Meldungen, interne Kommentare mit Rollenprüfung, Stimmen und Zurücknehmen sowie öffentliche Fortschrittsinformationen. Die Tests werden mit `mvn test` ausgeführt. REST-Controller und vollständige Browserabläufe werden dadurch nicht vollständig automatisiert abgedeckt und sollten ergänzend manuell geprüft werden.
 
 Benutzerfreundlichkeit und vollständige Browserabläufe werden manuell geprüft: Anmeldung, Meldungserfassung mit Karte und Foto, Anzeige eigener Meldungen sowie Statuswechsel durch Mitarbeitende. Diese Usability-Prüfung ergänzt die automatisierten Service-Tests.
 
@@ -115,7 +119,7 @@ Benutzerfreundlichkeit und vollständige Browserabläufe werden manuell geprüft
 Wichtige Erweiterungsmöglichkeiten sind:
 
 - HTTPS-Bereitstellung für Zugriff über das lokale Netzwerk
-- CSRF-Schutz zusätzlich zu den SameSite-Cookie-Einstellungen, falls neue cross-site Integrationen hinzukommen
+- zusätzliche Integrationstests für Controller, REST-Endpunkte und Datenbankmigrationen
 - E-Mail- oder Push-Benachrichtigungen
 - Export und Analyse der Meldungen
 - Bildoptimierung und Cloud-Speicherung

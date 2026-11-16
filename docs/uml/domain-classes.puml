@@ -1,0 +1,106 @@
+@startuml
+skinparam classAttributeIconSize 0
+hide methods
+
+class User {
+  id: Long
+  name: String
+  username: String
+  email: String
+  passwordHash: String
+  role: Role
+  createdAt: LocalDateTime
+}
+
+class Report {
+  id: Long
+  userId: Long?
+  title: String
+  category: Category
+  defectType: String
+  description: String
+  photoPath: String
+  latitude: double
+  longitude: double
+  status: Status
+  createdAt: LocalDateTime
+  updatedAt: LocalDateTime
+}
+
+class Comment {
+  id: Long
+  reportId: Long
+  userId: Long
+  text: String
+  photoPath: String
+  internal: boolean
+  createdAt: LocalDateTime
+}
+
+class Attachment {
+  id: Long
+  reportId: Long
+  filePath: String
+  createdAt: LocalDateTime
+}
+
+class ReportVote <<SQLite-Tabelle>> {
+  reportId: Long
+  userId: Long
+  createdAt: LocalDateTime
+  {unique} reportId + userId
+}
+
+enum Role {
+  CITIZEN
+  EMPLOYEE
+  ADMIN
+}
+
+enum Category {
+  POTHOLE
+  LITTER
+  STREETLIGHT
+  PARKING_VIOLATION
+  OTHER
+}
+
+enum Status {
+  NEW
+  IN_PROGRESS
+  COMPLETED
+}
+
+User "0..1" -- "0..*" Report : reicht ein
+User "1" -- "0..*" Comment : verfasst
+Report "1" *-- "0..*" Comment : Updates / interne Notizen
+Report "1" *-- "0..*" Attachment : Anhaenge
+User "1" -- "0..*" ReportVote : stimmt ab
+Report "1" -- "0..*" ReportVote : erhaelt Stimmen
+User --> Role
+Report --> Category
+Report --> Status
+
+note right of Report
+  userId ist optional:
+  anonyme Meldungen haben
+  keinen zugeordneten Benutzer.
+end note
+
+note right of Comment
+  internal = true kennzeichnet
+  einen nur intern sichtbaren
+  Mitarbeiterkommentar.
+end note
+
+note bottom of Attachment
+  Dateiinhalt liegt im Ordner uploads/.
+  In SQLite wird nur der Dateipfad gespeichert.
+end note
+
+note bottom of ReportVote
+  Die Stimmen werden in SQLite gespeichert;
+  dafuer existiert derzeit keine eigene
+  Java-Model-Klasse.
+end note
+@enduml

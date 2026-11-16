@@ -1,0 +1,36 @@
+@startuml
+actor "Buerger / anonymer Besucher" as User
+participant "Frontend\nneue-meldung.js" as Frontend
+participant "ReportController" as Controller
+participant "AuthenticatedUserResolver" as Resolver
+participant "ImageDataService" as Images
+participant "ReportService" as Service
+participant "ReportRepository" as Repository
+database "SQLite" as DB
+
+User -> Frontend : Meldungsformular absenden
+Frontend -> Controller : POST /api/reports\n(Titel, Kategorie, Text, Position, Foto?)
+Controller -> Resolver : currentUser(session)
+Resolver --> Controller : Buerger oder null (anonym)
+
+opt Foto wurde uebermittelt
+  Controller -> Images : saveDataUrl(photoData)
+  Images --> Controller : photoPath
+end
+
+alt Eingaben gueltig und Speichern erfolgreich
+  Controller -> Service : createReport(userId?, Felder, photoPath)
+  Service -> Service : Eingaben und Koordinaten validieren
+  Service -> Repository : save(report)
+  Repository -> DB : INSERT INTO reports
+  DB --> Repository : generierte ID
+  Repository --> Service : gespeicherte Meldung
+  Service --> Controller : Report
+  Controller --> Frontend : 201 Created + Meldungsdaten
+  Frontend --> User : Erfolg anzeigen
+else Validierung oder Speichern schlaegt fehl
+  Controller -> Images : gespeichertes Foto entfernen (falls vorhanden)
+  Controller --> Frontend : Fehlerantwort
+  Frontend --> User : Fehlermeldung anzeigen
+end
+@enduml

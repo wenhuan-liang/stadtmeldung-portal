@@ -1,0 +1,29 @@
+@startuml
+start
+:Nutzer oeffnet "Neue Meldung";
+:Standort auf Karte waehlen\noder GPS verwenden;
+:Titel, Kategorie und Beschreibung eingeben;
+
+if (Kategorie ist Defekt?) then (ja)
+  :Konkrete Defektart auswaehlen;
+else (nein)
+endif
+
+:Optional ein Foto auswaehlen;
+:Formular absenden;
+
+if (Eingaben gueltig?) then (ja)
+  :POST /api/reports;
+  if (Foto vorhanden?) then (ja)
+    :Foto validieren und in uploads/ speichern;
+  else (nein)
+  endif
+  :Meldung validieren;
+  :Meldung in SQLite speichern;
+  :Erfolg anzeigen;
+else (nein)
+  :Validierungsfehler anzeigen;
+endif
+
+stop
+@enduml

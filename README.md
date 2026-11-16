@@ -91,9 +91,10 @@ Falls `mvn` oder `java` nicht gefunden wird, installieren Sie ein JDK 17+ und Ma
 
 ## Projektstruktur
 
+- UML-Diagramme und Render-Hinweise: [`docs/uml/`](./docs/uml/)
 - `src/main/java/com/stadtmeldung/StadtmeldungApplication.java` startet Spring Boot und initialisiert SQLite.
 - `src/main/java/com/stadtmeldung/config/` enthält Spring-Konfiguration, Bean-Wiring, Sicherheit und das statische Serving-Verhalten.
-- `src/main/java/com/stadtmeldung/controller/` enthält REST-Controller, nach Verantwortlichkeit getrennt: Anmeldung, Meldungen, Fortschrittsinformationen, Stimmen und Mitarbeiterkonten.
+- `src/main/java/com/stadtmeldung/controller/` enthält REST-Controller, nach Verantwortlichkeit getrennt: Anmeldung, Meldungen, Fortschrittsinformationen, Stimmen, Anhänge und Mitarbeiterkonten.
 - `src/main/java/com/stadtmeldung/security/` enthält die Datenbank-Anbindung für Spring Security und die Verwaltung aktiver Sitzungen.
 - Die bestehenden `model/`, `repository/` und `service/` Pakete bleiben die SQLite-Domänen- und Geschäftslogikschichten des Backend-Branches.
 - `public/` ist wie im Frontend-Branch das öffentliche Stammverzeichnis für statische Dateien; die Oberfläche liegt weiterhin unter `public/frontend/` und ist unter `/frontend/` erreichbar. Der Spring-Webserver dient die Dateien nach demselben Verzeichnisprinzip wie Express aus `public/` aus. Die vorhandenen API-Pfade und JSON-Antworten bleiben für diese Oberfläche kompatibel.
@@ -136,6 +137,8 @@ Die Karte verwendet den öffentlichen OpenStreetMap-Tile-Server gemäß dessen [
 - `DELETE /api/attachments/:id` – eigenen Anhang als Bürger löschen
 - `PATCH /api/reports/:id` – Status ändern (Mitarbeiter/Admin)
 - `DELETE /api/reports/:id` – erledigte Meldung löschen (Mitarbeiter/Admin)
+
+Die separaten Anhang-Endpunkte sind im Backend verfügbar, aber noch nicht an die Benutzeroberfläche angebunden. Das aktuelle Meldeformular übermittelt ein optionales Foto direkt mit `POST /api/reports`.
 
 ## Qualitätssicherung
 

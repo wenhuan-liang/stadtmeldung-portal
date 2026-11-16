@@ -1,0 +1,88 @@
+@startuml
+left to right direction
+skinparam componentStyle rectangle
+
+actor "Nutzer\n(Buerger / Stadt-Team)" as User
+
+package "Browser" {
+  [FixMyCity Frontend\nHTML / CSS / JavaScript] as Frontend
+  [Leaflet-Kartenansicht] as Leaflet
+}
+
+package "Spring-Boot-Anwendung" {
+  package "REST-Controller" {
+    [AuthController]
+    [ReportController]
+    [CommentController]
+    [ReportVoteController]
+    [AttachmentController]
+    [AdminEmployeeController]
+  }
+
+  [Spring Security\nSitzung / CSRF / Rollen] as Security
+  package "Service-Schicht" {
+    [UserService]
+    [ReportService]
+    [CommentService]
+    [ReportVoteService]
+    [AttachmentService]
+    [ImageDataService]
+  }
+
+  package "Repository-Schicht" {
+    [UserRepository]
+    [ReportRepository]
+    [CommentRepository]
+    [ReportVoteRepository]
+    [AttachmentRepository]
+  }
+}
+
+database "SQLite\nportal.db" as SQLite
+folder "Dateisystem\nuploads/" as Uploads
+cloud "OpenStreetMap\nTile-Server" as OSM
+
+User --> Frontend
+Frontend --> Security : REST-Aufrufe\nund Sitzungscookie
+Frontend --> [AuthController] : /api/auth/*
+Frontend --> [ReportController] : /api/reports
+Frontend --> [CommentController] : /api/reports/{id}/comments
+Frontend --> [ReportVoteController] : /api/reports/{id}/votes
+Frontend ..> [AttachmentController] : REST-Endpunkte vorhanden,\naktuell nicht im UI eingebunden
+Frontend --> [AdminEmployeeController] : /api/admin/employees
+Frontend --> Leaflet
+Leaflet --> OSM : Kartenkacheln
+
+[AuthController] --> [UserService]
+[ReportController] --> [ReportService]
+[ReportController] --> [ImageDataService]
+[CommentController] --> [CommentService]
+[CommentController] --> [ImageDataService]
+[ReportVoteController] --> [ReportVoteService]
+[AttachmentController] --> [AttachmentService]
+[AttachmentController] --> [ImageDataService]
+[AdminEmployeeController] --> [UserService]
+
+[UserService] --> [UserRepository]
+[ReportService] --> [ReportRepository]
+[CommentService] --> [CommentRepository]
+[ReportVoteService] --> [ReportVoteRepository]
+[AttachmentService] --> [AttachmentRepository]
+
+[UserRepository] --> SQLite
+[ReportRepository] --> SQLite
+[CommentRepository] --> SQLite
+[ReportVoteRepository] --> SQLite
+[AttachmentRepository] --> SQLite
+[ImageDataService] --> Uploads
+
+note bottom of Security
+  Schreibzugriffe sind durch
+  Rollen und CSRF-Schutz abgesichert.
+end note
+
+note bottom of [AttachmentController]
+  Der separate Anhangsablauf ist derzeit
+  nicht in der Benutzeroberflaeche eingebunden.
+end note
+@enduml

@@ -1,0 +1,34 @@
+@startuml
+skinparam componentStyle rectangle
+
+node "Lokaler Computer" as Computer {
+  node "Webbrowser" as Browser {
+    artifact "FixMyCity-Oberflaeche\npublic/frontend/" as Frontend
+    component "Leaflet" as Leaflet
+  }
+
+  node "Java 17+ / Spring Boot" as App {
+    component "REST-API\n127.0.0.1:3000" as API
+    component "Spring Security\nSession + CSRF" as SpringSecurity
+  }
+
+  database "SQLite\nportal.db" as DB
+  folder "Uploads\nuploads/" as Uploads
+}
+
+cloud "Internet" as Internet {
+  node "OpenStreetMap Tile-Server" as OSM
+}
+
+Browser --> API : HTTP auf localhost\nREST /api/*
+API --> SpringSecurity
+API --> DB : JDBC
+API --> Uploads : Fotos lesen / schreiben
+Leaflet --> OSM : Kartenkacheln
+
+note right of Computer
+  Standardmaessig ist der Server nur
+  auf dem eigenen Computer erreichbar.
+  Datenbank und Uploads bleiben lokal.
+end note
+@enduml
