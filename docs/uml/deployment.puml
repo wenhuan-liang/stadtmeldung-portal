@@ -10,6 +10,7 @@ node "Lokaler Computer" as Computer {
   node "Java 17+ / Spring Boot" as App {
     component "REST-API\n127.0.0.1:3000" as API
     component "Spring Security\nSession + CSRF" as SpringSecurity
+    component "Geplante Bereinigung\n(7 Tage nach Erledigung)" as Cleanup
   }
 
   database "SQLite\nportal.db" as DB
@@ -24,6 +25,8 @@ Browser --> API : HTTP auf localhost\nREST /api/*
 API --> SpringSecurity
 API --> DB : JDBC
 API --> Uploads : Fotos lesen / schreiben
+Cleanup --> DB : abgelaufene Meldungen loeschen
+Cleanup --> Uploads : zugehoerige Fotos loeschen
 Leaflet --> OSM : Kartenkacheln
 
 note right of Computer

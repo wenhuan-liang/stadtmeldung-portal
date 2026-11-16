@@ -364,13 +364,31 @@ class BackendServiceTest {
         }
 
         @Override
+        public List<Report> findExpiredCompletedReports() {
+            return List.of();
+        }
+
+        @Override
         public void update(Report report) {
             reports.put(report.getId(), report);
         }
 
         @Override
+        public void updateStatus(long id, Status status) {
+            Report report = reports.get(id);
+            if (report != null) {
+                report.setStatus(status);
+            }
+        }
+
+        @Override
         public void deleteById(long id) {
             reports.remove(id);
+        }
+
+        @Override
+        public boolean deleteExpiredCompletedReport(long id) {
+            return false;
         }
     }
 

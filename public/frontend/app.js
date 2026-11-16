@@ -253,6 +253,7 @@ function renderList() {
           </select>
           ${r.status === 'resolved' ? `<button type="button" class="delete-report-button" data-action="delete-report" data-id="${escapeHtml(r.id)}">Erledigte Meldung löschen</button>` : ''}
         </div>
+        ${r.status === 'resolved' ? '<p class="status-retention-note">Ohne manuelle Löschung nach 7 Tagen automatisch gelöscht. Prüfung stündlich, solange das Portal läuft.</p>' : ''}
       ` : ''}
     </li>
   `).join('');
@@ -642,6 +643,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     list.addEventListener('change', event => {
       if (!event.target.matches('.report-status')) return;
+      const report = currentReports.find(
+        item => String(item.id) === String(event.target.dataset.id)
+      );
+      if (event.target.value === 'resolved' &&
+          report?.status !== 'resolved' &&
+          !window.confirm(
+            'Wenn Sie diese Meldung als erledigt markieren, können Sie sie weiterhin manuell löschen. ' +
+            'Ohne manuelle Löschung wird sie nach 7 Tagen automatisch gelöscht. Die Prüfung erfolgt stündlich, solange das Portal läuft. Fortfahren?'
+          )) {
+        event.target.value = report?.status || 'new';
+        return;
+      }
       updateReportStatus(event.target.dataset.id, event.target.value)
         .catch(error => {
           window.alert(error.message);

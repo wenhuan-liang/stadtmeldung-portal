@@ -6,6 +6,7 @@ actor "Anonymer Besucher" as Anonymous
 actor "Buerger" as Citizen
 actor "Mitarbeiter" as Employee
 actor "Administrator" as Admin
+actor "System (Scheduler)" as Scheduler
 
 Admin --|> Employee
 
@@ -21,6 +22,7 @@ rectangle "FixMyCity" {
   usecase "Meldungsstatus aendern" as UC_Status
   usecase "Interne Notiz\nzu Meldung hinzufuegen" as UC_Internal
   usecase "Erledigte Meldung loeschen" as UC_Delete
+  usecase "Erledigte Meldung nach 7 Tagen\nautomatisch loeschen" as UC_AutoDelete
   usecase "Mitarbeiterkonten\nanlegen und loeschen" as UC_Employees
 }
 
@@ -44,6 +46,7 @@ Employee --> UC_Internal
 Employee --> UC_Delete
 
 Admin --> UC_Employees
+Scheduler --> UC_AutoDelete
 
 note right of UC_Internal
   Interne Kommentare sind nur fuer

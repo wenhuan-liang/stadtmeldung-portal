@@ -51,6 +51,11 @@ public final class DatabaseInitializer {
                 "TEXT NOT NULL DEFAULT ''");
         ensureColumn(conn, "reports", "photo_path",
                 "TEXT NOT NULL DEFAULT ''");
+        ensureColumn(conn, "reports", "completed_at", "TEXT");
+        executeSql(conn, """
+            CREATE INDEX IF NOT EXISTS idx_reports_completed_at
+            ON reports(status, completed_at);
+            """);
         executeSql(conn, """
             UPDATE reports
             SET title = category
@@ -109,6 +114,7 @@ public final class DatabaseInitializer {
                     )),
                 created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    completed_at TEXT,
 
                 FOREIGN KEY (user_id) REFERENCES users(id)
                     ON DELETE SET NULL

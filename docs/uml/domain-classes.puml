@@ -25,6 +25,7 @@ class Report {
   status: Status
   createdAt: LocalDateTime
   updatedAt: LocalDateTime
+  completedAt: LocalDateTime?
 }
 
 class Comment {

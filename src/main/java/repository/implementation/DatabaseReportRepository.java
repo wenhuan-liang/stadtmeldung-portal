@@ -167,6 +167,32 @@ public class DatabaseReportRepository implements ReportRepository {
     }
 
     @Override
+    public List<Report> findExpiredCompletedReports() {
+        List<Report> reports = new ArrayList<>();
+        String sql = """
+            SELECT * FROM reports
+            WHERE status = 'COMPLETED'
+              AND completed_at IS NOT NULL
+              AND completed_at <= datetime('now', '-7 days')
+            ORDER BY completed_at ASC, id ASC;
+            """;
+
+        try (Connection conn = connectionProvider.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                reports.add(reportMapper.map(rs));
+            }
+        } catch (SQLException e) {
+            logger.error("Error while loading expired completed reports", e);
+            throw new RepositoryException(
+                    "Failed to load expired completed reports", e);
+        }
+
+        return reports;
+    }
+
+    @Override
     public void update(Report report) {
 
         String sql = """
@@ -213,6 +239,40 @@ public class DatabaseReportRepository implements ReportRepository {
     }
 
     @Override
+    public void updateStatus(long id, Status status) {
+        String sql = """
+            UPDATE reports
+            SET completed_at = CASE
+                    WHEN status = 'COMPLETED' AND ? = 'COMPLETED'
+                        THEN completed_at
+                    WHEN ? = 'COMPLETED'
+                        THEN CURRENT_TIMESTAMP
+                    ELSE NULL
+                END,
+                status = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?;
+            """;
+
+        try (Connection conn = connectionProvider.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, status.name());
+            pstmt.setString(2, status.name());
+            pstmt.setString(3, status.name());
+            pstmt.setLong(4, id);
+
+            if (pstmt.executeUpdate() == 0) {
+                throw new SQLException("Report not found: " + id);
+            }
+            logger.info("Report {} status updated to {}", id, status);
+        } catch (SQLException e) {
+            logger.error("Error while updating status for report {}", id, e);
+            throw new RepositoryException(
+                    "Failed to update status for report " + id, e);
+        }
+    }
+
+    @Override
     public void deleteById(long id) {
 
         String sql = "DELETE FROM reports WHERE id = ?;";
@@ -231,6 +291,27 @@ public class DatabaseReportRepository implements ReportRepository {
             logger.error("Error while deleting report {}", id, e);
             throw new RepositoryException(
                     "Failed to delete report " + id, e);
+        }
+    }
+
+    @Override
+    public boolean deleteExpiredCompletedReport(long id) {
+        String sql = """
+            DELETE FROM reports
+            WHERE id = ?
+              AND status = 'COMPLETED'
+              AND completed_at IS NOT NULL
+              AND completed_at <= datetime('now', '-7 days');
+            """;
+
+        try (Connection conn = connectionProvider.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, id);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            logger.error("Error while deleting expired report {}", id, e);
+            throw new RepositoryException(
+                    "Failed to delete expired report " + id, e);
         }
     }
 }

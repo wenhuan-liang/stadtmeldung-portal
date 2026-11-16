@@ -80,7 +80,7 @@ Falls `mvn` oder `java` nicht gefunden wird, installieren Sie ein JDK 17+ und Ma
 - Unter „Meine Meldungen“ kann der angemeldete Bürger zwischen eigenen Meldungen, Meldungen, für die er gestimmt hat, und Meldungen mit eigenen Updates filtern; die Art der Beteiligung ist zusätzlich an jeder Meldung gekennzeichnet.
 - Bürger können für öffentliche Meldungen stimmen, ihre Stimme später zurücknehmen und zusätzliche Fortschrittsinformationen mit optionalem Foto veröffentlichen.
 - Mitarbeiter sehen die Stimmenzahl und können Meldungen danach sortieren. Bürger sehen verständliche Statusangaben: wartet auf Bearbeitung durch die Stadt, in Bearbeitung durch die Stadt und von der Stadt erledigt. „Alle Meldungen“ ist ein separater Filter.
-- Nicht gelöschte Meldungen erscheinen für Bürger und Mitarbeitende in der Karten- und Listenübersicht. Mitarbeitende und Administratoren können erledigte Meldungen löschen.
+- Nicht gelöschte Meldungen erscheinen für Bürger und Mitarbeitende in der Karten- und Listenübersicht. Mitarbeitende und Administratoren können erledigte Meldungen manuell löschen; andernfalls werden sie sieben Tage nach der Erledigung automatisch entfernt. Die Prüfung läuft stündlich und beim Start des Portals.
 - Mitarbeitende und Administratoren können interne Kommentare zu Meldungen speichern. Diese Kommentare sind ausschließlich für das Stadt-Team sichtbar; Bürger-Updates bleiben öffentlich.
 - Administratoren können Mitarbeiterkonten im Portal erstellen, anzeigen und löschen. Beim Löschen werden aktive Sitzungen des Mitarbeiters beendet.
 - Mitarbeiter und Administratoren können Meldungsstatus ändern.

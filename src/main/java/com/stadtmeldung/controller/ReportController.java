@@ -1,6 +1,7 @@
 package com.stadtmeldung.controller;
 
 import com.stadtmeldung.service.ImageDataService;
+import model.Attachment;
 import model.Comment;
 import model.Report;
 import model.User;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import service.interfaces.AttachmentService;
 import service.interfaces.CommentService;
 import service.interfaces.ReportService;
 import service.interfaces.ReportVoteService;
@@ -35,6 +37,7 @@ import java.util.Set;
 public class ReportController {
     private final ReportService reportService;
     private final CommentService commentService;
+    private final AttachmentService attachmentService;
     private final ReportVoteService reportVoteService;
     private final ApiResponseMapper responseMapper;
     private final ImageDataService imageDataService;
@@ -42,12 +45,14 @@ public class ReportController {
 
     public ReportController(ReportService reportService,
                             CommentService commentService,
+                            AttachmentService attachmentService,
                             ReportVoteService reportVoteService,
                             ApiResponseMapper responseMapper,
                             ImageDataService imageDataService,
                             AuthenticatedUserResolver userResolver) {
         this.reportService = reportService;
         this.commentService = commentService;
+        this.attachmentService = attachmentService;
         this.reportVoteService = reportVoteService;
         this.responseMapper = responseMapper;
         this.imageDataService = imageDataService;
@@ -163,10 +168,14 @@ public class ReportController {
                     "Nur erledigte Meldungen können gelöscht werden.");
         }
         List<Comment> comments = commentService.findByReportId(id);
+        List<Attachment> attachments = attachmentService.findByReportId(id);
         reportService.deleteCompletedReport(id, employee.getId());
         imageDataService.deleteSavedFile(report.getPhotoPath());
         for (Comment comment : comments) {
             imageDataService.deleteSavedFile(comment.getPhotoPath());
+        }
+        for (Attachment attachment : attachments) {
+            imageDataService.deleteSavedFile(attachment.getFilePath());
         }
     }
 

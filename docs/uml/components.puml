@@ -27,6 +27,7 @@ package "Spring-Boot-Anwendung" {
     [ReportVoteService]
     [AttachmentService]
     [ImageDataService]
+    [CompletedReportCleanupJob]
   }
 
   package "Repository-Schicht" {
@@ -68,6 +69,10 @@ Leaflet --> OSM : Kartenkacheln
 [CommentService] --> [CommentRepository]
 [ReportVoteService] --> [ReportVoteRepository]
 [AttachmentService] --> [AttachmentRepository]
+[CompletedReportCleanupJob] --> [ReportRepository]
+[CompletedReportCleanupJob] --> [CommentRepository]
+[CompletedReportCleanupJob] --> [AttachmentRepository]
+[CompletedReportCleanupJob] --> [ImageDataService]
 
 [UserRepository] --> SQLite
 [ReportRepository] --> SQLite
@@ -84,5 +89,10 @@ end note
 note bottom of [AttachmentController]
   Der separate Anhangsablauf ist derzeit
   nicht in der Benutzeroberflaeche eingebunden.
+end note
+
+note bottom of [CompletedReportCleanupJob]
+  Erledigte Meldungen werden nach
+  sieben Tagen automatisch geloescht.
 end note
 @enduml

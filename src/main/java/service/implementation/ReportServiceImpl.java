@@ -177,9 +177,7 @@ public class ReportServiceImpl implements ReportService {
                     "Report not found: " + reportId);
         }
 
-        report.setStatus(status);
-
-        reportRepository.update(report);
+        reportRepository.updateStatus(reportId, status);
     }
 
     // Bürger dürfen nur ihre eigenen Meldungen löschen

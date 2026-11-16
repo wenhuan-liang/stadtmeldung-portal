@@ -5,6 +5,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import model.User;
@@ -15,6 +16,7 @@ import service.interfaces.UserService;
 import java.util.Locale;
 
 @SpringBootApplication
+@EnableScheduling
 public class StadtmeldungApplication {
     private static final Logger logger =
             LoggerFactory.getLogger(StadtmeldungApplication.class);

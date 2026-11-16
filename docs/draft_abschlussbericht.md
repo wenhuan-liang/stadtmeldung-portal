@@ -34,7 +34,7 @@ Die Software umfasst die folgenden Kernfunktionalitäten:
    - Anzeige aller Meldungen
    - Filterung nach Kategorie und konkreter Defektart
    - Statusverwaltung: Neu, In Bearbeitung, Erledigt
-   - Mitarbeitende und Administratoren können erledigte Meldungen löschen.
+   - Mitarbeitende und Administratoren können erledigte Meldungen manuell löschen. Nicht vorher gelöschte Meldungen werden sieben Tage nach der Erledigung automatisch entfernt.
 
 3. Visualisierung
    - Interaktive OpenStreetMap-Karte via Leaflet
@@ -91,7 +91,7 @@ Der Ablauf beim Einreichen einer Meldung veranschaulicht das Zusammenspiel der K
 
 Ein ähnliches Prinzip gilt für die Anmeldung: Die Zugangsdaten werden an die API übertragen und serverseitig geprüft. Passwörter werden nicht im Klartext in der Datenbank abgelegt, sondern mit BCrypt gehasht. Nach erfolgreicher Anmeldung verwendet Spring Security eine serverseitige Sitzung, die über ein Sitzungscookie dem Browser zugeordnet wird. Schreibende Anfragen werden zusätzlich durch CSRF-Schutz abgesichert.
 
-Bei weiteren Interaktionen greifen die Rollenregeln entsprechend: Bürgerstimmen und öffentliche Updates setzen ein Bürgerkonto voraus; interne Kommentare und Statusänderungen sind Mitarbeitenden und Administratoren vorbehalten. Eine Meldung kann über die Oberfläche nur gelöscht werden, wenn sie den Status „Erledigt“ hat. Dadurch werden Berechtigungs- und Zustandsregeln nicht allein dem Frontend überlassen.
+Bei weiteren Interaktionen greifen die Rollenregeln entsprechend: Bürgerstimmen und öffentliche Updates setzen ein Bürgerkonto voraus; interne Kommentare und Statusänderungen sind Mitarbeitenden und Administratoren vorbehalten. Wenn Mitarbeitende oder Administratoren eine Meldung als „Erledigt“ markieren, weist die Oberfläche darauf hin, dass die Meldung manuell gelöscht werden kann. Erfolgt keine manuelle Löschung, entfernt das System die Meldung nach sieben Tagen. Die Prüfung erfolgt stündlich, solange das Portal läuft; nach einer Betriebspause wird die Bereinigung beim nächsten Start nachgeholt. Eine manuelle Löschung ist ebenfalls nur für erledigte Meldungen möglich. Dadurch werden Berechtigungs- und Zustandsregeln nicht allein dem Frontend überlassen.
 
 ### 4.4 Datenbank und Dateispeicherung
 
@@ -100,7 +100,7 @@ SQLite wurde gewählt, weil die Anwendung lokal auf einem einzelnen Computer bet
 Das Schema umfasst fünf zentrale Tabellen:
 
 - `users` speichert Benutzername, Name, E-Mail, BCrypt-Passworthash, Rolle und Erstellungszeitpunkt. Die Rollen sind Bürger, Mitarbeitende und Administratoren.
-- `reports` enthält die Meldungsdaten: optionalen Ersteller, Titel, Kategorie, konkrete Defektart, Beschreibung, Standortkoordinaten, Status, Zeitstempel und optionalen Fotopfad. Kategorien und Statuswerte sind durch zulässige Werte eingeschränkt.
+- `reports` enthält die Meldungsdaten: optionalen Ersteller, Titel, Kategorie, konkrete Defektart, Beschreibung, Standortkoordinaten, Status, Zeitstempel, den Zeitpunkt der Erledigung und optionalen Fotopfad. Der Erledigungszeitpunkt startet die siebentägige Aufbewahrungsfrist. Bereits vor Einführung der Funktion erledigte Meldungen erhalten bei der Migration keinen rückwirkenden Fristbeginn und bleiben erhalten.
 - `comments` speichert öffentliche Updates und interne Notizen zu einer Meldung. Ein Kennzeichen unterscheidet interne Kommentare, die nur für Mitarbeitende und Administratoren bestimmt sind. Kommentare können ebenfalls einen Fotopfad enthalten.
 - `report_votes` speichert die Zuordnung zwischen Bürger und Meldung. Eine Eindeutigkeitsbedingung verhindert, dass derselbe Benutzer dieselbe Meldung mehrfach gleichzeitig bewertet.
 - `attachments` speichert zusätzliche Dateipfade zu Meldungen. Die dafür vorhandenen REST-Endpunkte sind im Backend verfügbar; ein separater Ablauf für diese Anhänge ist aktuell jedoch nicht in die Benutzeroberfläche eingebunden.
@@ -152,7 +152,7 @@ Die Aufteilung in Frontend-, Backend- und Gesamtsystem-Komponenten ist in einem 
 
 ## 7. Qualitätssicherung
 
-Automatisierte JUnit-Service-Tests prüfen einzelne Backend-Funktionen, darunter Registrierung und Passwortprüfung, Meldungsvalidierung, konkrete Defektarten und Koordinaten, die Admin-Berechtigung zur Mitarbeiterverwaltung, Statusänderungen, das Löschen erledigter Meldungen, interne Kommentare mit Rollenprüfung, Stimmen und Zurücknehmen sowie öffentliche Fortschrittsinformationen. Die Tests werden mit `mvn test` ausgeführt. REST-Controller und vollständige Browserabläufe werden dadurch nicht vollständig automatisiert abgedeckt und sollten ergänzend manuell geprüft werden.
+Automatisierte JUnit-Service- und Repository-Tests prüfen einzelne Backend-Funktionen, darunter Registrierung und Passwortprüfung, Meldungsvalidierung, konkrete Defektarten und Koordinaten, die Admin-Berechtigung zur Mitarbeiterverwaltung, Statusänderungen, die siebentägige automatische Löschfrist, das Löschen erledigter Meldungen und zugehöriger Bilddateien, interne Kommentare mit Rollenprüfung, Stimmen und Zurücknehmen sowie öffentliche Fortschrittsinformationen. Die Tests werden mit `mvn test` ausgeführt. REST-Controller und vollständige Browserabläufe werden dadurch nicht vollständig automatisiert abgedeckt und sollten ergänzend manuell geprüft werden.
 
 Benutzerfreundlichkeit und vollständige Browserabläufe werden manuell geprüft: Anmeldung, Meldungserfassung mit Karte und Foto, Anzeige eigener Meldungen sowie Statuswechsel durch Mitarbeitende. Diese Usability-Prüfung ergänzt die automatisierten Service-Tests.
 

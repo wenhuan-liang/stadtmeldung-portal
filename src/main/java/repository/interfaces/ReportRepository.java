@@ -15,7 +15,13 @@ public interface ReportRepository {
 
     List<Report> findByStatus(Status status);
 
+    List<Report> findExpiredCompletedReports();
+
     void update(Report report);
 
+    void updateStatus(long id, Status status);
+
     void deleteById(long id);
+
+    boolean deleteExpiredCompletedReport(long id);
 }
