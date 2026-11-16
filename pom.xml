@@ -17,6 +17,9 @@
 
     <properties>
         <java.version>17</java.version>
+        <!-- Standard: alle Tests außer den langsamen Browser-Tests (Tag "e2e") -->
+        <test.groups></test.groups>
+        <test.excludedGroups>e2e</test.excludedGroups>
     </properties>
 
     <dependencies>
@@ -46,6 +49,12 @@
             <artifactId>spring-boot-starter-webmvc-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- End-to-End-Tests: steuert einen echten Chrome-Browser -->
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -53,6 +62,55 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <!-- Stellt den Pfad der Mockito-JAR als Property bereit (für den Java-Agent unten) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>mockito-agent-path</id>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Testabdeckung: Bericht unter target/site/jacoco/index.html -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.14</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar} -Xshare:off</argLine>
+                    <groups>${test.groups}</groups>
+                    <excludedGroups>${test.excludedGroups}</excludedGroups>
+                    <!-- Tests verwenden eine eigene Datenbank und nie die echte portal.db -->
+                    <environmentVariables>
+                        <PORTAL_DB_PATH>${project.build.directory}/test-db/portal-test.db</PORTAL_DB_PATH>
+                        <PORTAL_ADMIN_USERNAME>testadmin</PORTAL_ADMIN_USERNAME>
+                        <PORTAL_ADMIN_PASSWORD>testadmin-passwort-123</PORTAL_ADMIN_PASSWORD>
+                    </environmentVariables>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -64,4 +122,15 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Selenium-Tests separat starten: mvn test -Pe2e -->
+        <profile>
+            <id>e2e</id>
+            <properties>
+                <test.groups>e2e</test.groups>
+                <test.excludedGroups></test.excludedGroups>
+            </properties>
+        </profile>
+    </profiles>
 </project>
