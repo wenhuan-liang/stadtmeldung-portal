@@ -107,10 +107,13 @@ Die Karte verwendet den öffentlichen OpenStreetMap-Tile-Server gemäß dessen [
 
 ## Qualitätssicherung
 
-Automatisierte Backend-Funktionstests ausführen:
+Automatisierte Tests ausführen:
 
 ```powershell
-mvn test
+mvn test          # Unit-, Datenbank- und API-Tests
+mvn test -Pe2e    # Selenium-Browsertests (Chrome + Internet erforderlich)
 ```
+
+Testabdeckung: `target/site/jacoco/index.html`. Ausführliche Beschreibung aller Testebenen, Testfälle und Ergebnisse: [docs/testdokumentation.md](docs/testdokumentation.md). Leitfaden für Usability-Tests mit Testpersonen: [docs/usability-test.md](docs/usability-test.md).
 
 Die Tests prüfen unter anderem Benutzernamen-/Passwortvalidierung, Passwortprüfung, konkrete Defektarten, Koordinatenvalidierung, Admin-Berechtigung beim Erstellen und Löschen von Mitarbeiterkonten, Statusänderungen, Löschen erledigter Meldungen, interne Kommentare mit Rollenprüfung, Bürgerstimmen mit Zurücknehmen und die Rollen-/Inhaltsvalidierung bei Fortschrittsinformationen. Ergänzend sollten die Benutzerfreundlichkeit und die Oberfläche manuell geprüft werden: anonyme Meldung ohne Konto, erste Admin-Einrichtung, Mitarbeiterkonto erstellen/löschen, Mitarbeiteranmeldung, Mitarbeiter-Dashboard ohne Erfassungsfunktionen und Statuswechsel sowie Bürgerregistrierung und -login, Karte/GPS, Foto-Upload, Stimmen, Updates mit Foto, interne Team-Kommentare und „Meine Meldungen“.
